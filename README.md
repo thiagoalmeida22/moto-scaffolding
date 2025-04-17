@@ -1,3 +1,6 @@
+# Moto-Scaffolding
+My first personal project: A javascript front-end + Node.js/SQL back-end for a website that compares motorcycles technical specifications
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
