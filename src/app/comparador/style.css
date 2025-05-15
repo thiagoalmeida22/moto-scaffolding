@@ -2,10 +2,34 @@ body {
     font-family: Arial, sans-serif;
 }
 
-div {
-    margin: 10px;
-}
-
 h1 {
     margin-bottom: 20px;
+    margin: auto;
+    max-width: fit-content;
+}
+
+.comparator__div {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.selector__div {
+    display: flex;
+    flex-direction: column;
+}
+
+.comparator__single-value {
+
+}
+
+.comparator__row {
+    display: flex;
+    justify-content: space-evenly;
+}
+.even {
+    background-color: #F1F8E9;
+}
+
+.odd {
+    background-color: #DCEDC8;
 }
