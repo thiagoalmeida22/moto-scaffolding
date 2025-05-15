@@ -1,0 +1,8 @@
+CREATE DATABASE IF NOT EXISTS motos;
+USE motos;
+
+CREATE TABLE Marcas (
+    id INT NOT NULL,
+    nome VARCHAR(50),
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
