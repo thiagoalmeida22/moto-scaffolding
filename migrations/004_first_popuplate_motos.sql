@@ -1,7 +1,4 @@
-INSERT INTO motos.Motos 
-  (modelo, marca, ano, cilindrada, potencia, torque, transmissao, partida, combustivel, tanque, chassi, freio_d, freio_t, pneu_d, pneu_t, peso_seco, peso_odm)
-VALUES
-  ('cg 160', 1, 2020, 162.7, 14.4, 1.41, 5, 'eletrica', 'flex', 14, 'diamond frame', 'disco', 'disco', '80/100-18', '100/80-18', 120, 132),
-  ('factor 150', 2, 2020, 149, 11.8, 1.3, 5, 'eletrica', 'flex', 15.4, 'diamente', 'disco', 'tambor', '80/100-18', '100/80-18', 119, 133),
-  ('dk 160', 1, 2020, 162.4, 15, 1.43, 5, 'eletrica', 'gasolina', 16.5, 'berço duplo', 'disco', 'tambor', '80/100-18', '100/80-18', 119, 135),
-  ('dominar 160', 3, 2020, 160.3, 17, 1.48, 5, 'eletrica e mec', 'gasolina', 12, 'perimetral', 'abs', 'abs', '100/80-17', '130/70-17', 140, 152);
+  INSERT INTO motos.Motos 
+  (modelo, marca, ano, categoria, preço_fipe, tipo_motor, cilindrada, potencia_A, potencia_G, torque_A, torque_G, partida, refrigeracao, cambio, embreagem, suspensao_d, suspensao_t, tipo_freio, freio_d, freio_t, pneu_d, pneu_t, chassi, alt_assento, altura, comprimento, largura, dist_eixos, peso, cap_carga, vel_max, acel_100, combustivel, consumo_A, consumo_G, autonomia_A, autonomia_G, tanque, aditional)
+  VALUES 
+  ('CG 160 Titan', 1, 2025, 'street', 21960, 'OHC monocilindrico 4 tempos', 162.7, '14.7 a 8000rpm', '14.4 a 8000rpm', '1.43 a 6750rpm', '1.41 a 6750rpm', 'eletrica', 'ar', 5, 'multidisco a oleo', 'garfo telecopico', '2 amortecedores', 'ABS', 'disco', 'disco', '80/100-18', '100/80-18', 'diamond frame', 796, 1094, 2030, 747, 1311, 120, 160, 137, 15, 'flex', 30, 40, 420, 560, 14,'{ "Farol": "Farol de LED" }');

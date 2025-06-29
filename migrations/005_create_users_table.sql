@@ -1,0 +1,11 @@
+CREATE DATABASE IF NOT EXISTS motos;
+USE motos;
+
+CREATE TABLE Users (
+    id INT NOT NULL AUTO_INCREMENT,
+    user VARCHAR(50) NOT NULL,
+    role INT,
+    hashedPass VARCHAR(255),
+    PRIMARY KEY (id),
+    UNIQUE INDEX idx_user (user)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -8,9 +8,13 @@ h1 {
     max-width: fit-content;
 }
 
+.comparator__container {
+    background: bisque;
+}
+
 .comparator__div {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: space-around;
 }
 
 .selector__div {
@@ -18,18 +22,65 @@ h1 {
     flex-direction: column;
 }
 
-.comparator__single-value {
+.comparator__keys {
+    font-size: 20px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 1rem;
+}
 
+.comparator__keys p {
+    margin: 0;
+    white-space: nowrap;
+}
+
+.comparator__names {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
 }
 
 .comparator__row {
     display: flex;
-    justify-content: space-evenly;
+    padding: 0.1em 2em;
+    align-items: baseline;
 }
+
+.comparator__values {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0px 1em;
+    width: 90%;
+}
+
+.comparator__values p {
+    font-size: 18px;
+}
+
+.comparator__arrow {
+    font-size: 24px;
+}
+
 .even {
-    background-color: #F1F8E9;
+    background-color: cornsilk;
 }
 
 .odd {
-    background-color: #DCEDC8;
+    background-color: bisque;
+}
+
+.comparator__group-header {
+    background-color: #f0f0f0;
+    padding: 10px 2em;
+    display: flex;
+}
+
+.comparator__group-header h3 {
+    margin: auto;
+    color: #333;
+    font-size: 1.2em;
+    font-weight: 600;
 }

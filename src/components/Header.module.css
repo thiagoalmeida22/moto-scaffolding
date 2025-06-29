@@ -1,0 +1,37 @@
+.header {
+    width: 100%;
+    background-color: #d53829;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 0rem 1rem;
+}
+
+.nav {
+    max-width: 1200px;
+    margin: 0 auto 1em auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.logo img {
+    object-fit: contain;
+}
+
+.links {
+    display: flex;
+    gap: 2rem;
+}
+
+.links a {
+    text-decoration: none;
+    color: black;
+    transition: color 0.2s;
+    font-weight: 600;
+    font-size: 20px;
+}
