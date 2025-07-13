@@ -1,0 +1,62 @@
+.selectors-main__div {
+    display: flex;
+    flex-direction: row;
+}
+
+.selectors-main__collumn {
+    display: flex;
+    flex-direction: column;
+}
+
+.selector-input__div {}
+
+.selector-input__select {
+    margin-left: 20px;
+}
+
+
+.form-input__div {
+    display: flex;
+    width: -webkit-fill-available;
+    justify-content: space-between;
+    margin: 10px 10px 10px 0px;
+}
+
+.form-input__div--inline {
+    display: flex;
+    align-items: center;
+}
+
+.form-input__label {
+    width: 200px;
+}
+
+.form-input__label.mini {
+    font-size: 12px;
+    width: auto;
+}
+
+.form-input__label-format {
+    font-style: italic;
+    font-size: 0.85em;
+    color: #666;
+}
+
+/* Alternativa usando pseudo-elemento - descomente se quiser usar */
+/*
+.form-input__label--pneu::after {
+    content: " (xx/yyy-zz)";
+    font-style: italic;
+    font-size: 0.85em;
+    color: #666;
+}
+*/
+
+.form__input {
+    flex: 1;
+}
+
+.form__textarea {
+    flex: 1;
+    resize: vertical;
+}
