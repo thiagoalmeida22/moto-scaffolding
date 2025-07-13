@@ -1,4 +1,8 @@
 import mysql from 'mysql2/promise';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env files
+dotenv.config();
 
 const config =
 	process.env.NODE_ENV === 'production'
@@ -14,7 +18,7 @@ const config =
 		: {
 			host: process.env.LOCAL_DB_HOST,
 			user: process.env.LOCAL_DB_USER,
-			password: process.env.LOCAL_DB_PAS,
+			password: process.env.LOCAL_DB_PASS,
 			database: process.env.LOCAL_DB_NAME,
 			waitForConnections: true,
 			connectionLimit: 10,
