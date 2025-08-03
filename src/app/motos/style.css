@@ -18,6 +18,7 @@
     margin-bottom: 40px;
     justify-content: center;
     flex-wrap: wrap;
+    align-items: flex-end;
 }
 
 .selector-group {
@@ -45,6 +46,32 @@
     background-color: #f5f5f5;
     color: #999;
     cursor: not-allowed;
+}
+
+/* Botão Comparar */
+.comparar-button {
+    padding: 10px 20px;
+    background-color: #d53829;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    min-width: 200px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.comparar-button:hover {
+    background-color: #b32d1f;
+}
+
+.comparar-button:active {
+    background-color: #8f2419;
 }
 
 /* Data display styling */
@@ -132,6 +159,10 @@
         min-width: 250px;
     }
     
+    .comparar-button {
+        min-width: 250px;
+    }
+    
     .data-row-container {
         grid-template-columns: 1fr;
         gap: 15px;
@@ -148,6 +179,10 @@
 
 @media (max-width: 480px) {
     .selector-group select {
+        min-width: 200px;
+    }
+    
+    .comparar-button {
         min-width: 200px;
     }
     

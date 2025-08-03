@@ -8,6 +8,10 @@ export async function GET(request, { params }) {
         );
         return Response.json(results);
     } catch (err) {
-        console.log(err);
+        console.error('Database error:', err);
+        return Response.json(
+            { error: 'Database connection failed', details: err.message },
+            { status: 500 }
+        );
     }
 }
