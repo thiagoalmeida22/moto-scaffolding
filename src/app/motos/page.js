@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import './style.css';
 
 function MotosPage() {
+    const router = useRouter();
     const [marcas, setMarcas] = useState([]);
     const [modelos, setModelos] = useState([]);
     const [anos, setAnos] = useState([]);
@@ -98,6 +100,20 @@ function MotosPage() {
         setSelectedAno(event.target.value);
     };
 
+    const handleCompararClick = () => {
+        if (motoData) {
+            // Criar query parameters
+            const params = new URLSearchParams({
+                marca: selectedMarca, // ID da marca (numérico)
+                modelo: selectedModelo,
+                ano: selectedAno
+            });
+            
+            // Redirecionar para o comparador com query parameters
+            router.push(`/comparador?${params.toString()}`);
+        }
+    };
+
     const renderDataBlock = (title, data, maxRows = 0) => {
         if (!data) return null;
         
@@ -183,6 +199,18 @@ function MotosPage() {
                         ))}
                     </select>
                 </div>
+
+                {/* Botão Comparar */}
+                {motoData && (
+                    <div className="selector-group">
+                        <button 
+                            className="comparar-button"
+                            onClick={handleCompararClick}
+                        >
+                            Comparar
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Data Display */}
