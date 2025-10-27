@@ -25,28 +25,121 @@ function Comparador() {
     // Estados para controlar os valores selecionados nos dropdowns da Moto 1
     const [selectedMarca1, setSelectedMarca1] = useState('');
     const [selectedAno1, setSelectedAno1] = useState('');
+    
+    // Estados para tratamento de erro
+    const [isLoading, setIsLoading] = useState(true);
+    const [hasError, setHasError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [retryCount, setRetryCount] = useState(0);
+    
+    // Estados para fotos das motos
+    const [moto1Fotos, setMoto1Fotos] = useState([]);
+    const [moto2Fotos, setMoto2Fotos] = useState([]);
+    const [moto3Fotos, setMoto3Fotos] = useState([]);
+    const [moto1Id, setMoto1Id] = useState(null);
+    const [moto2Id, setMoto2Id] = useState(null);
+    const [moto3Id, setMoto3Id] = useState(null);
 
     useEffect(() => {
         const fetchMarcas = async () => {
-            const response = await fetch('/api/db/marca');
-            const data = await response.json();
-            setMarcas(data);
-            
-            // Verificar se há query parameters para carregar moto da página de motos
-            const marcaParam = searchParams.get('marca');
-            const modeloParam = searchParams.get('modelo');
-            const anoParam = searchParams.get('ano');
-            
-            if (marcaParam && modeloParam && anoParam) {
-                carregarMotoDaPaginaMotos({
-                    marca: marcaParam,
-                    modelo: modeloParam,
-                    ano: anoParam
-                }, data);
+            try {
+                setIsLoading(true);
+                setHasError(false);
+                
+                const response = await fetch('/api/db/marca');
+                
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                // Verificar se a resposta contém erro
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Verificar se data é um array válido
+                if (!Array.isArray(data)) {
+                    throw new Error('Formato de dados inválido recebido do servidor');
+                }
+                
+                setMarcas(data);
+                
+                // Verificar se há query parameters para carregar moto da página de motos
+                const marcaParam = searchParams.get('marca');
+                const modeloParam = searchParams.get('modelo');
+                const anoParam = searchParams.get('ano');
+                
+                if (marcaParam && modeloParam && anoParam) {
+                    carregarMotoDaPaginaMotos({
+                        marca: marcaParam,
+                        modelo: modeloParam,
+                        ano: anoParam
+                    }, data);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar marcas:', error);
+                setHasError(true);
+                setErrorMessage(error.message || 'Erro de conexão com o banco de dados');
+            } finally {
+                setIsLoading(false);
             }
         };
         fetchMarcas();
     }, [searchParams]);
+
+    // Função para tentar novamente
+    const handleRetry = () => {
+        setRetryCount(prev => prev + 1);
+        setHasError(false);
+        setIsLoading(true);
+        
+        // Recarregar a página após um pequeno delay
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
+    };
+
+    // Função para carregar fotos de uma moto
+    const loadMotoFotos = async (motoId, setter) => {
+        if (!motoId) {
+            setter([]);
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/db/moto-fotos/get?motoId=${motoId}`);
+            const data = await response.json();
+            
+            if (data.success && data.fotos && data.fotos.length > 0) {
+                // Garantir que o caminho está correto (precisa começar com /api/pictures)
+                const fotosComCaminho = data.fotos.map(f => {
+                    const path = f.foto_path;
+                    // Se o caminho já começa com /api/pictures, usar como está
+                    if (path.startsWith('/api/pictures')) {
+                        return path;
+                    }
+                    // Se começa com /pictures, converter para /api/pictures
+                    if (path.startsWith('/pictures')) {
+                        return path.replace('/pictures', '/api/pictures');
+                    }
+                    // Se é apenas o caminho relativo, adicionar /api/pictures
+                    if (path.startsWith('pictures/')) {
+                        return `/api/${path}`;
+                    }
+                    // Caso contrário, assumir que já está completo
+                    return path;
+                });
+                setter(fotosComCaminho);
+            } else {
+                setter([]);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar fotos:', error);
+            setter([]);
+        }
+    };
 
     const carregarMotoDaPaginaMotos = async (motoParams, marcasData) => {
         try {
@@ -86,91 +179,318 @@ function Comparador() {
         setNumSelectedMotos(selectedMoto1 && selectedMoto2 && selectedMoto3 ? 3 : selectedMoto1 && selectedMoto2 ? 2 : 0);
     }, [selectedMoto1, selectedMoto2, selectedMoto3]);
 
+    // Recarregar fotos quando os IDs das motos mudarem
+    useEffect(() => {
+        if (moto1Id) {
+            loadMotoFotos(moto1Id, setMoto1Fotos);
+        }
+    }, [moto1Id]);
+
+    useEffect(() => {
+        if (moto2Id) {
+            loadMotoFotos(moto2Id, setMoto2Fotos);
+        }
+    }, [moto2Id]);
+
+    useEffect(() => {
+        if (moto3Id) {
+            loadMotoFotos(moto3Id, setMoto3Fotos);
+        }
+    }, [moto3Id]);
+
     const handleChangeMarca1 = async (event) => {
-        console.log("handleChangeMarca1", event.target.value);
-        setSelectedMarca1(event.target.value);
-        const response = await fetch(`/api/db/marca/${event.target.value}`);
-        const data = await response.json();
-        setModelos1(data);
-        // Limpar seleções dependentes
-        setSelectedModelo1(null);
-        setSelectedAno1('');
-        setSelectedMoto1(null);
+        try {
+            setSelectedMarca1(event.target.value);
+            
+            const response = await fetch(`/api/db/marca/${event.target.value}`);
+            
+            if (!response.ok) {
+                throw new Error(`Erro ao carregar modelos: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            setModelos1(data);
+            // Limpar seleções dependentes
+            setSelectedModelo1(null);
+            setSelectedAno1('');
+            setSelectedMoto1(null);
+        } catch (error) {
+            console.error('Erro ao carregar modelos:', error);
+            setHasError(true);
+            setErrorMessage('Erro ao carregar modelos da marca selecionada');
+        }
     };
 
     const handleChangeMarca2 = async (event) => {
-        const response = await fetch(`/api/db/marca/${event.target.value}`);
-        const data = await response.json();
-        setModelos2(data);
+        try {
+            const response = await fetch(`/api/db/marca/${event.target.value}`);
+            
+            if (!response.ok) {
+                throw new Error(`Erro ao carregar modelos: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            setModelos2(data);
+        } catch (error) {
+            console.error('Erro ao carregar modelos:', error);
+            setHasError(true);
+            setErrorMessage('Erro ao carregar modelos da marca selecionada');
+        }
     };
 
     const handleChangeMarca3 = async (event) => {
-        if (event.target.value === "") {
-            setSelectedMoto3(null);
-            setAnos3(null);
-            setSelectedModelo3(null);
-            return;
+        try {
+            if (event.target.value === "") {
+                setSelectedMoto3(null);
+                setAnos3(null);
+                setSelectedModelo3(null);
+                return;
+            }
+            
+            const response = await fetch(`/api/db/marca/${event.target.value}`);
+            
+            if (!response.ok) {
+                throw new Error(`Erro ao carregar modelos: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            setModelos3(data);
+        } catch (error) {
+            console.error('Erro ao carregar modelos:', error);
+            setHasError(true);
+            setErrorMessage('Erro ao carregar modelos da marca selecionada');
         }
-        const response = await fetch(`/api/db/marca/${event.target.value}`);
-        const data = await response.json();
-        setModelos3(data);
     };
 
     const handleChangeModelo1 = async (event) => {
-        const selectedModelo = modelos1.find(modelo => modelo.modelo === event.target.value).modelo;
-        setSelectedModelo1(selectedModelo);
-        const response = await fetch(`/api/db/modelo/${event.target.value}`);
-        const data = await response.json();
-        setAnos1(data);
-        // Limpar ano selecionado
-        setSelectedAno1('');
-        setSelectedMoto1(null);
+        try {
+            const selectedModelo = modelos1.find(modelo => modelo.modelo === event.target.value).modelo;
+            setSelectedModelo1(selectedModelo);
+            
+            const response = await fetch(`/api/db/modelo/${event.target.value}`);
+            
+            if (!response.ok) {
+                throw new Error(`Erro ao carregar anos: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            setAnos1(data);
+            // Limpar ano selecionado
+            setSelectedAno1('');
+            setSelectedMoto1(null);
+        } catch (error) {
+            console.error('Erro ao carregar anos:', error);
+            setHasError(true);
+            setErrorMessage('Erro ao carregar anos do modelo selecionado');
+        }
     };
 
     const handleChangeModelo2 = async (event) => {
-        const selectedModelo = modelos2.find(modelo => modelo.modelo === event.target.value).modelo;
-        const response = await fetch(`/api/db/modelo/${event.target.value}`);
-        const data = await response.json();
-        setSelectedModelo2(selectedModelo);
-        setAnos2(data);
+        try {
+            const selectedModelo = modelos2.find(modelo => modelo.modelo === event.target.value).modelo;
+            
+            const response = await fetch(`/api/db/modelo/${event.target.value}`);
+            
+            if (!response.ok) {
+                throw new Error(`Erro ao carregar anos: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            setSelectedModelo2(selectedModelo);
+            setAnos2(data);
+        } catch (error) {
+            console.error('Erro ao carregar anos:', error);
+            setHasError(true);
+            setErrorMessage('Erro ao carregar anos do modelo selecionado');
+        }
     };
 
     const handleChangeModelo3 = async (event) => {
-        const selectedModelo = modelos3.find(modelo => modelo.modelo === event.target.value).modelo;
-        const response = await fetch(`/api/db/modelo/${event.target.value}`);
-        const data = await response.json();
-        setSelectedModelo3(selectedModelo);
-        setAnos3(data);
+        try {
+            const selectedModelo = modelos3.find(modelo => modelo.modelo === event.target.value).modelo;
+            
+            const response = await fetch(`/api/db/modelo/${event.target.value}`);
+            
+            if (!response.ok) {
+                throw new Error(`Erro ao carregar anos: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            setSelectedModelo3(selectedModelo);
+            setAnos3(data);
+        } catch (error) {
+            console.error('Erro ao carregar anos:', error);
+            setHasError(true);
+            setErrorMessage('Erro ao carregar anos do modelo selecionado');
+        }
     };
 
     const handleChangeAno1 = async (event) => {
-        setSelectedAno1(event.target.value);
-        const response = await fetch(`/api/db/moto?modelo=${selectedModelo1}&ano=${event.target.value}`);
-        const data = await response.json();
-        delete data.id;
-        setSelectedMoto1(data);
+        try {
+            setSelectedAno1(event.target.value);
+            
+            const response = await fetch(`/api/db/moto?modelo=${selectedModelo1}&ano=${event.target.value}`);
+            
+            if (!response.ok) {
+                throw new Error(`Erro ao carregar dados da moto: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            const motoId = data.id;
+            setMoto1Id(motoId);
+            if (motoId) {
+                await loadMotoFotos(motoId, setMoto1Fotos);
+            }
+            
+            delete data.id;
+            setSelectedMoto1(data);
+        } catch (error) {
+            console.error('Erro ao carregar dados da moto:', error);
+            setHasError(true);
+            setErrorMessage('Erro ao carregar dados da moto selecionada');
+        }
     };
 
     const handleChangeAno2 = async (event) => {
-        const response = await fetch(`/api/db/moto?modelo=${selectedModelo2}&ano=${event.target.value}`);
-        const data = await response.json();
-        delete data.id;
-        setSelectedMoto2(data);
+        try {
+            const response = await fetch(`/api/db/moto?modelo=${selectedModelo2}&ano=${event.target.value}`);
+            
+            if (!response.ok) {
+                throw new Error(`Erro ao carregar dados da moto: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            const motoId = data.id;
+            setMoto2Id(motoId);
+            if (motoId) {
+                await loadMotoFotos(motoId, setMoto2Fotos);
+            }
+            
+            delete data.id;
+            setSelectedMoto2(data);
+        } catch (error) {
+            console.error('Erro ao carregar dados da moto:', error);
+            setHasError(true);
+            setErrorMessage('Erro ao carregar dados da moto selecionada');
+        }
     };
 
     const handleChangeAno3 = async (event) => {
-        const response = await fetch(`/api/db/moto?modelo=${selectedModelo3}&ano=${event.target.value}`);
-        const data = await response.json();
-        delete data.id;
-        setSelectedMoto3(data);
+        try {
+            const response = await fetch(`/api/db/moto?modelo=${selectedModelo3}&ano=${event.target.value}`);
+            
+            if (!response.ok) {
+                throw new Error(`Erro ao carregar dados da moto: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            const motoId = data.id;
+            setMoto3Id(motoId);
+            if (motoId) {
+                await loadMotoFotos(motoId, setMoto3Fotos);
+            }
+            
+            delete data.id;
+            setSelectedMoto3(data);
+        } catch (error) {
+            console.error('Erro ao carregar dados da moto:', error);
+            setHasError(true);
+            setErrorMessage('Erro ao carregar dados da moto selecionada');
+        }
     };
+
+    // Componente de Loading
+    const LoadingComponent = () => (
+        <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <p>Carregando dados do comparador...</p>
+        </div>
+    );
+
+    // Componente de Erro
+    const ErrorComponent = () => (
+        <div className="error-container">
+            <div className="error-icon">⚠️</div>
+            <h2>Ops! Algo deu errado</h2>
+            <p className="error-message">{errorMessage}</p>
+            <p className="error-description">
+                Não foi possível conectar com o banco de dados. Isso pode acontecer devido a:
+            </p>
+            <ul className="error-list">
+                <li>Problemas de conexão com a internet</li>
+                <li>Servidor temporariamente indisponível</li>
+                <li>Manutenção em andamento</li>
+            </ul>
+            <div className="error-actions">
+                <button onClick={handleRetry} className="retry-button">
+                    🔄 Tentar Novamente
+                </button>
+                <p className="retry-info">
+                    Tentativa {retryCount + 1} de reconexão
+                </p>
+            </div>
+        </div>
+    );
 
     return (
         <div className="comparador-container">
             <h1>Comparador de Motos</h1>
             
-            {/* Selectors */}
-            <div className="selectors">
+            {/* Loading State */}
+            {isLoading && <LoadingComponent />}
+            
+            {/* Error State */}
+            {hasError && <ErrorComponent />}
+            
+            {/* Normal State - Selectors */}
+            {!isLoading && !hasError && (
+                <>
+                <div className="selectors">
                 <div className="selector-group">
                     <h4>Moto 1</h4>
                     <label htmlFor="marca1">Marca:</label>
@@ -261,11 +581,12 @@ function Comparador() {
                 </div>
             </div>
 
-            {/* Comparison Display */}
-            {numSelectedMotos >= 2 && (
+                {/* Comparison Display */}
+                {numSelectedMotos >= 2 && (
                 <div className="comparison-display">
                     {/* Moto Names */}
                     <div className="moto-names">
+                        <div className="flex-holder"></div>
                         <div className="moto-name">
                             {selectedMoto1['Especificacoes']['Marca']} {selectedMoto1['Especificacoes']['Modelo']} - {selectedMoto1['Especificacoes']['Ano']}
                         </div>
@@ -374,7 +695,96 @@ function Comparador() {
                             maxRows={6} 
                         />
                     </div>
+                    
+                    {/* Seção de Fotos */}
+                    {(moto1Fotos.length > 0 || moto2Fotos.length > 0 || moto3Fotos.length > 0) && (
+                        <div className="motos-fotos-section" style={{ marginTop: '40px', padding: '20px', background: '#f8f9fa', borderRadius: '8px' }}>
+                            <h2 style={{ marginBottom: '20px', color: '#333', textAlign: 'center' }}>Fotos das Motos</h2>
+                            <div className="fotos-grid-comparison" style={{ display: 'grid', gridTemplateColumns: `repeat(${numSelectedMotos}, 1fr)`, gap: '20px' }}>
+                                {moto1Fotos.length > 0 && (
+                                    <div className="moto-fotos">
+                                        <h3 style={{ marginBottom: '15px', color: '#d53829', textAlign: 'center' }}>
+                                            {selectedMoto1['Especificacoes']['Marca']} {selectedMoto1['Especificacoes']['Modelo']}
+                                        </h3>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                            {moto1Fotos.map((foto, index) => (
+                                                <img
+                                                    key={index}
+                                                    src={foto}
+                                                    alt={`Foto ${index + 1} - ${selectedMoto1['Especificacoes']['Modelo']}`}
+                                                    style={{
+                                                        width: '457px',
+                                                        height: '343px',
+                                                        objectFit: 'cover',
+                                                        borderRadius: '8px',
+                                                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                                    }}
+                                                    onError={(e) => {
+                                                        e.target.style.display = 'none';
+                                                    }}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                {moto2Fotos.length > 0 && (
+                                    <div className="moto-fotos">
+                                        <h3 style={{ marginBottom: '15px', color: '#d53829', textAlign: 'center' }}>
+                                            {selectedMoto2['Especificacoes']['Marca']} {selectedMoto2['Especificacoes']['Modelo']}
+                                        </h3>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                            {moto2Fotos.map((foto, index) => (
+                                                <img
+                                                    key={index}
+                                                    src={foto}
+                                                    alt={`Foto ${index + 1} - ${selectedMoto2['Especificacoes']['Modelo']}`}
+                                                    style={{
+                                                        width: '457px',
+                                                        height: '343px',
+                                                        objectFit: 'cover',
+                                                        borderRadius: '8px',
+                                                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                                    }}
+                                                    onError={(e) => {
+                                                        e.target.style.display = 'none';
+                                                    }}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                {moto3Fotos.length > 0 && selectedMoto3 && (
+                                    <div className="moto-fotos">
+                                        <h3 style={{ marginBottom: '15px', color: '#d53829', textAlign: 'center' }}>
+                                            {selectedMoto3['Especificacoes']['Marca']} {selectedMoto3['Especificacoes']['Modelo']}
+                                        </h3>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                            {moto3Fotos.map((foto, index) => (
+                                                <img
+                                                    key={index}
+                                                    src={foto}
+                                                    alt={`Foto ${index + 1} - ${selectedMoto3['Especificacoes']['Modelo']}`}
+                                                    style={{
+                                                        width: '457px',
+                                                        height: '343px',
+                                                        objectFit: 'cover',
+                                                        borderRadius: '8px',
+                                                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                                    }}
+                                                    onError={(e) => {
+                                                        e.target.style.display = 'none';
+                                                    }}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
+                )}
+                </>
             )}
         </div>
     );

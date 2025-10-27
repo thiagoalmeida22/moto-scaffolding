@@ -18,6 +18,20 @@ const AdminDashboard = () => {
         id: '0',
         marca: '',
     });
+    
+    // Estados para aba de Fotos
+    const [fotoMarca, setFotoMarca] = useState('0');
+    const [fotoModelo, setFotoModelo] = useState('');
+    const [fotoModelos, setFotoModelos] = useState([]);
+    const [isDragging, setIsDragging] = useState(false);
+    const [uploadedFiles, setUploadedFiles] = useState([]);
+    const [fotosListadas, setFotosListadas] = useState([]);
+    const [isLoadingFotosList, setIsLoadingFotosList] = useState(false);
+    
+    // Estados para linkagem de fotos à moto
+    const [availableFotos, setAvailableFotos] = useState([]);
+    const [selectedFotos, setSelectedFotos] = useState([]);
+    const [isLoadingFotos, setIsLoadingFotos] = useState(false);
 
     /* ===== Funções para os selects (modo Motos) ===== */
     const handleChangeMarca = async (event) => {
@@ -104,6 +118,115 @@ const AdminDashboard = () => {
                 tanque: data.tanque,
                 aditional: data.aditional
             });
+            
+            // Carregar fotos disponíveis e já linkadas
+            await loadFotosForMoto(data.marca, data.modelo, data.id);
+        }
+    };
+
+    const loadFotosForMoto = async (marcaId, modelo, motoId) => {
+        try {
+            setIsLoadingFotos(true);
+            
+            // Carregar fotos disponíveis
+            const fotosResponse = await fetch(`/api/db/moto-fotos/list?marca=${marcaId}&modelo=${encodeURIComponent(modelo)}`);
+            const fotosData = await fotosResponse.json();
+            
+            if (fotosData.success) {
+                setAvailableFotos(fotosData.fotos || []);
+            }
+            
+            // Carregar fotos já linkadas à moto
+            const linkedResponse = await fetch(`/api/db/moto-fotos/get?motoId=${motoId}`);
+            const linkedData = await linkedResponse.json();
+            
+            if (linkedData.success) {
+                setSelectedFotos(linkedData.fotos.map(f => f.foto_path) || []);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar fotos:', error);
+        } finally {
+            setIsLoadingFotos(false);
+        }
+    };
+
+    const handleToggleFoto = (fotoPath) => {
+        setSelectedFotos(prev => {
+            if (prev.includes(fotoPath)) {
+                return prev.filter(p => p !== fotoPath);
+            } else if (prev.length < 3) {
+                return [...prev, fotoPath];
+            } else {
+                alert('Máximo de 3 fotos por moto');
+                return prev;
+            }
+        });
+    };
+
+    const handleFotoDragStart = (e, index) => {
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', index);
+    };
+
+    const handleFotoDragOver = (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    };
+
+    const handleFotoDrop = (e, dropIndex) => {
+        e.preventDefault();
+        const dragIndex = parseInt(e.dataTransfer.getData('text/html'));
+        
+        if (dragIndex === dropIndex) return;
+        
+        setSelectedFotos(prev => {
+            const newFotos = [...prev];
+            const draggedFoto = newFotos[dragIndex];
+            newFotos.splice(dragIndex, 1);
+            newFotos.splice(dropIndex, 0, draggedFoto);
+            return newFotos;
+        });
+    };
+
+    const handleLinkFotos = async () => {
+        if (!motoForm.id) {
+            alert('Selecione uma moto');
+            return;
+        }
+
+        // Se não há fotos selecionadas, confirmar remoção
+        if (selectedFotos.length === 0) {
+            if (!confirm('Tem certeza que deseja remover todas as fotos linkadas a esta moto?')) {
+                return;
+            }
+        }
+
+        try {
+            const response = await fetch('/api/db/moto-fotos/link', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    motoId: motoForm.id,
+                    fotoPaths: selectedFotos
+                })
+            });
+
+            const result = await response.json();
+            
+            if (response.ok) {
+                if (selectedFotos.length === 0) {
+                    alert('Todas as fotos foram removidas com sucesso!');
+                } else {
+                    alert(`${selectedFotos.length} foto(s) linkada(s) com sucesso!`);
+                }
+                // Recarregar as fotos para atualizar o estado
+                await loadFotosForMoto(motoForm.marca, motoForm.modelo, motoForm.id);
+            } else {
+                alert(`Erro: ${result.error}`);
+            }
+        } catch (error) {
+            console.error('Erro ao linkar fotos:', error);
+            alert('Erro ao linkar fotos');
         }
     };
 
@@ -118,6 +241,8 @@ const AdminDashboard = () => {
             marca: '',
         });
         setMotoForm(motoInitialState);
+        setAvailableFotos([]);
+        setSelectedFotos([]);
     }
 
     const fetchMarcas = async () => {
@@ -204,12 +329,191 @@ const AdminDashboard = () => {
         clearSelectedData();
     };
 
+    /* ===== Handlers para aba de Fotos ===== */
+    const handleFotoMarcaChange = async (event) => {
+        const marcaId = event.target.value;
+        setFotoMarca(marcaId);
+        setFotoModelo('');
+        setFotoModelos([]);
+        
+        if (marcaId && marcaId !== '0') {
+            const response = await fetch(`/api/db/marca/${marcaId}`);
+            const data = await response.json();
+            setFotoModelos(data);
+        }
+    };
+
+    const handleFotoModeloChange = async (event) => {
+        const modelo = event.target.value;
+        setFotoModelo(modelo);
+        
+        // Carregar fotos do modelo selecionado
+        if (fotoMarca && fotoMarca !== '0' && modelo) {
+            await loadFotosDoModelo(fotoMarca, modelo);
+        } else {
+            setFotosListadas([]);
+        }
+    };
+
+    const loadFotosDoModelo = async (marcaId, modelo) => {
+        try {
+            setIsLoadingFotosList(true);
+            const response = await fetch(`/api/db/moto-fotos/list?marca=${marcaId}&modelo=${encodeURIComponent(modelo)}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                setFotosListadas(data.fotos || []);
+            } else {
+                setFotosListadas([]);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar fotos:', error);
+            setFotosListadas([]);
+        } finally {
+            setIsLoadingFotosList(false);
+        }
+    };
+
+    const handleUpdateDescricao = async (fotoPath, descricao) => {
+        try {
+            // Converter path da API para path do banco de dados
+            // De: /api/pictures/Marca/Modelo/file.jpg
+            // Para: /pictures/Marca/Modelo/file.jpg
+            const dbPath = fotoPath.replace('/api', '');
+            
+            const response = await fetch('/api/db/moto-fotos/update-descricao', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    foto_path: dbPath,
+                    descricao: descricao.trim() || null
+                })
+            });
+
+            const result = await response.json();
+            
+            if (response.ok) {
+                // Atualizar localmente a descrição na lista
+                setFotosListadas(prev => prev.map(foto => 
+                    foto.path === fotoPath 
+                        ? { ...foto, descricao: descricao.trim() || '' }
+                        : foto
+                ));
+            } else {
+                console.error('Erro ao atualizar descrição:', result.error);
+            }
+        } catch (error) {
+            console.error('Erro ao atualizar descrição:', error);
+        }
+    };
+
+    const handleDeleteFoto = async (fotoPath) => {
+        if (!confirm('Tem certeza que deseja deletar esta foto? Esta ação não pode ser desfeita.')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/db/moto-fotos/delete?fotoPath=${encodeURIComponent(fotoPath)}`, {
+                method: 'DELETE'
+            });
+
+            const result = await response.json();
+            
+            if (response.ok) {
+                alert('Foto deletada com sucesso!');
+                // Recarregar a lista de fotos
+                if (fotoMarca && fotoMarca !== '0' && fotoModelo) {
+                    await loadFotosDoModelo(fotoMarca, fotoModelo);
+                }
+            } else {
+                alert(`Erro: ${result.error}`);
+            }
+        } catch (error) {
+            console.error('Erro ao deletar foto:', error);
+            alert('Erro ao deletar foto');
+        }
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+    };
+
+    const handleDrop = async (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+        
+        if (!fotoMarca || fotoMarca === '0' || !fotoModelo) {
+            alert('Por favor, selecione uma Marca e um Modelo antes de fazer upload.');
+            return;
+        }
+
+        const files = Array.from(e.dataTransfer.files);
+        await uploadFiles(files);
+    };
+
+    const handleFileSelect = async (e) => {
+        const files = Array.from(e.target.files);
+        await uploadFiles(files);
+    };
+
+    const uploadFiles = async (files) => {
+        if (!fotoMarca || fotoMarca === '0' || !fotoModelo) {
+            alert('Por favor, selecione uma Marca e um Modelo antes de fazer upload.');
+            return;
+        }
+
+        const imageFiles = files.filter(file => file.type.startsWith('image/'));
+        
+        if (imageFiles.length === 0) {
+            alert('Por favor, selecione apenas arquivos de imagem.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('marca', fotoMarca);
+        formData.append('modelo', fotoModelo);
+        
+        imageFiles.forEach((file, index) => {
+            formData.append(`photos`, file);
+        });
+
+        try {
+            const response = await fetch('/api/upload/photos', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            
+            if (response.ok) {
+                alert(`Sucesso! ${result.uploaded} foto(s) enviada(s).`);
+                setUploadedFiles(prev => [...prev, ...result.files]);
+                // Recarregar a lista de fotos
+                await loadFotosDoModelo(fotoMarca, fotoModelo);
+            } else {
+                alert(`Erro: ${result.error}`);
+            }
+        } catch (error) {
+            console.error('Erro ao fazer upload:', error);
+            alert('Erro ao fazer upload das fotos.');
+        }
+    };
+
     return (
         <div className="admin-dashboard" style={{ display: 'flex' }}>
             {/* Sidebar com os botões de navegação entre Motos e Marcas */}
             <div className="sidebar" style={{ marginRight: '20px' }}>
                 <button onClick={() => setActiveTab('motos')}>Motos</button>
                 <button onClick={() => setActiveTab('marcas')}>Marcas</button>
+                <button onClick={() => setActiveTab('fotos')}>Fotos</button>
             </div>
 
             {/* Conteúdo principal */}
@@ -862,6 +1166,172 @@ const AdminDashboard = () => {
                             >
                                 Delete Moto
                             </button>
+                            
+                            {/* Seção de Linkagem de Fotos */}
+                            {selectedMoto && (
+                                <div className="fotos-link-section" style={{ marginTop: '40px', padding: '20px', border: '1px solid #ddd', borderRadius: '8px' }}>
+                                    <h3>Linkar Fotos à Moto</h3>
+                                    <p style={{ marginBottom: '15px', color: '#666' }}>
+                                        Selecione até 3 fotos para linkar com esta moto ({selectedFotos.length}/3 selecionadas)
+                                    </p>
+                                    
+                                    {isLoadingFotos ? (
+                                        <p>Carregando fotos...</p>
+                                    ) : availableFotos.length === 0 ? (
+                                        <p style={{ color: '#999' }}>Nenhuma foto disponível para este modelo. Faça upload de fotos na aba "Fotos" primeiro.</p>
+                                    ) : (
+                                        <>
+                                            <div className="fotos-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '15px', marginBottom: '20px' }}>
+                                                {availableFotos.map((foto, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className={`foto-thumbnail ${selectedFotos.includes(foto.path) ? 'selected' : ''}`}
+                                                        onClick={() => handleToggleFoto(foto.path)}
+                                                        style={{
+                                                            position: 'relative',
+                                                            cursor: 'pointer',
+                                                            border: selectedFotos.includes(foto.path) ? '3px solid #d53829' : '2px solid #ddd',
+                                                            borderRadius: '8px',
+                                                            overflow: 'hidden',
+                                                            aspectRatio: '4/3'
+                                                        }}
+                                                    >
+                                                        <img
+                                                            src={foto.path}
+                                                            alt={foto.filename}
+                                                            style={{
+                                                                width: '100%',
+                                                                height: '100%',
+                                                                objectFit: 'cover'
+                                                            }}
+                                                            onError={(e) => {
+                                                                e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="150" height="150"%3E%3Crect fill="%23ddd" width="150" height="150"/%3E%3Ctext fill="%23999" font-family="Arial" font-size="12" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EFoto não encontrada%3C/text%3E%3C/svg%3E';
+                                                            }}
+                                                        />
+                                                        {selectedFotos.includes(foto.path) && (
+                                                            <div style={{
+                                                                position: 'absolute',
+                                                                top: '5px',
+                                                                right: '5px',
+                                                                background: '#d53829',
+                                                                color: 'white',
+                                                                borderRadius: '50%',
+                                                                width: '24px',
+                                                                height: '24px',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                fontSize: '14px',
+                                                                fontWeight: 'bold'
+                                                            }}>
+                                                                ✓
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            
+                                            {/* Seção de Fotos Selecionadas (com reordenação) */}
+                                            {selectedFotos.length > 0 && (
+                                                <div style={{ marginBottom: '20px', padding: '15px', background: '#f8f9fa', borderRadius: '8px', border: '1px solid #e0e0e0' }}>
+                                                    <h4 style={{ marginBottom: '10px', color: '#333' }}>Fotos Selecionadas (Arraste para reordenar)</h4>
+                                                    <div id="motos-fotos-section" style={{ display: 'grid', gridTemplateColumns: `repeat(${selectedFotos.length}, 1fr)`, gap: '15px' }}>
+                                                        {selectedFotos.map((fotoPath, index) => {
+                                                            const foto = availableFotos.find(f => f.path === fotoPath);
+                                                            return (
+                                                                <div
+                                                                    key={fotoPath}
+                                                                    draggable
+                                                                    onDragStart={(e) => handleFotoDragStart(e, index)}
+                                                                    onDragOver={handleFotoDragOver}
+                                                                    onDrop={(e) => handleFotoDrop(e, index)}
+                                                                    style={{
+                                                                        position: 'relative',
+                                                                        cursor: 'move',
+                                                                        border: '2px solid #d53829',
+                                                                        borderRadius: '8px',
+                                                                        overflow: 'hidden',
+                                                                        width: '120px',
+                                                                        height: '90px',
+                                                                        flexShrink: 0
+                                                                    }}
+                                                                >
+                                                                    <img
+                                                                        src={foto?.path || fotoPath}
+                                                                        alt={`Foto ${index + 1}`}
+                                                                        style={{
+                                                                            width: '100%',
+                                                                            height: '100%',
+                                                                            objectFit: 'cover'
+                                                                        }}
+                                                                        onError={(e) => {
+                                                                            e.target.style.display = 'none';
+                                                                        }}
+                                                                    />
+                                                                    <div style={{
+                                                                        position: 'absolute',
+                                                                        bottom: '0',
+                                                                        left: '0',
+                                                                        right: '0',
+                                                                        background: 'rgba(213, 56, 41, 0.9)',
+                                                                        color: 'white',
+                                                                        textAlign: 'center',
+                                                                        padding: '2px 0',
+                                                                        fontSize: '12px',
+                                                                        fontWeight: 'bold'
+                                                                    }}>
+                                                                        {index + 1}
+                                                                    </div>
+                                                                    <button
+                                                                        onClick={() => handleToggleFoto(fotoPath)}
+                                                                        style={{
+                                                                            position: 'absolute',
+                                                                            top: '5px',
+                                                                            right: '5px',
+                                                                            background: 'rgba(0,0,0,0.7)',
+                                                                            color: 'white',
+                                                                            border: 'none',
+                                                                            borderRadius: '50%',
+                                                                            width: '20px',
+                                                                            height: '20px',
+                                                                            cursor: 'pointer',
+                                                                            fontSize: '12px',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            justifyContent: 'center'
+                                                                        }}
+                                                                        title="Remover foto"
+                                                                    >
+                                                                        ×
+                                                                    </button>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )}
+                                            
+                                            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                                                <button
+                                                    type="button"
+                                                    onClick={handleLinkFotos}
+                                                    style={{
+                                                        padding: '10px 20px',
+                                                        backgroundColor: '#d53829',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontWeight: '600'
+                                                    }}
+                                                >
+                                                    {selectedFotos.length === 0 ? 'Remover Todas as Fotos' : `Linkar ${selectedFotos.length} Foto(s)`}
+                                                </button>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            )}
                         </form>
                     )}
                     {activeTab === 'marcas' && (
@@ -895,6 +1365,210 @@ const AdminDashboard = () => {
                                 Delete Marca
                             </button>
                         </form>
+                    )}
+
+                    {activeTab === 'fotos' && (
+                        <div className="fotos-upload-section">
+                            <h3>Upload de Fotos</h3>
+                            
+                            {/* Seletores de Marca e Modelo */}
+                            <div className="selector-input__div" style={{ marginBottom: '20px' }}>
+                                <label htmlFor="fotoMarca">Marca:</label>
+                                <select
+                                    className="selector-input__select"
+                                    id="fotoMarca"
+                                    value={fotoMarca}
+                                    onChange={handleFotoMarcaChange}
+                                >
+                                    <option value="0" disabled hidden>--Selecione uma Marca--</option>
+                                    {marcas?.map((marca) => (
+                                        <option key={marca.id} value={marca.id}>
+                                            {marca.nome}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="selector-input__div" style={{ marginBottom: '20px' }}>
+                                <label htmlFor="fotoModelo">Modelo:</label>
+                                <select
+                                    className="selector-input__select"
+                                    id="fotoModelo"
+                                    value={fotoModelo}
+                                    onChange={handleFotoModeloChange}
+                                    disabled={!fotoMarca || fotoMarca === '0'}
+                                >
+                                    <option value="" disabled hidden>--Selecione um Modelo--</option>
+                                    {fotoModelos?.map((modelo) => (
+                                        <option key={modelo.modelo} value={modelo.modelo}>
+                                            {modelo.modelo}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Área de Upload */}
+                            {(fotoMarca && fotoMarca !== '0' && fotoModelo) && (
+                                <div
+                                    className={`upload-area ${isDragging ? 'dragging' : ''}`}
+                                    onDragOver={handleDragOver}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={handleDrop}
+                                >
+                                    <div className="upload-content">
+                                        <p className="upload-icon">📸</p>
+                                        <p className="upload-text">
+                                            Arraste e solte fotos aqui ou
+                                        </p>
+                                        <label htmlFor="file-input" className="upload-button">
+                                            Selecione arquivos
+                                        </label>
+                                        <input
+                                            id="file-input"
+                                            type="file"
+                                            multiple
+                                            accept="image/*"
+                                            onChange={handleFileSelect}
+                                            style={{ display: 'none' }}
+                                        />
+                                        <p className="upload-hint">
+                                            Formatos aceitos: JPG, PNG, GIF, WEBP
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Lista de Fotos */}
+                            {(fotoMarca && fotoMarca !== '0' && fotoModelo) && (
+                                <div style={{ marginTop: '30px' }}>
+                                    <h3 style={{ marginBottom: '15px', color: '#333' }}>Fotos Enviadas</h3>
+                                    
+                                    {isLoadingFotosList ? (
+                                        <p>Carregando fotos...</p>
+                                    ) : fotosListadas.length === 0 ? (
+                                        <p style={{ color: '#999' }}>Nenhuma foto enviada para este modelo ainda.</p>
+                                    ) : (
+                                        <div style={{ 
+                                            display: 'grid', 
+                                            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', 
+                                            gap: '20px' 
+                                        }}>
+                                            {fotosListadas.map((foto, index) => (
+                                                <div
+                                                    key={index}
+                                                    style={{
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        border: '2px solid #ddd',
+                                                        borderRadius: '8px',
+                                                        overflow: 'hidden',
+                                                        background: '#f9f9f9'
+                                                    }}
+                                                >
+                                                    <div style={{
+                                                        position: 'relative',
+                                                        aspectRatio: '4/3',
+                                                        background: '#f9f9f9'
+                                                    }}>
+                                                        <img
+                                                            src={foto.path}
+                                                            alt={foto.filename}
+                                                            style={{
+                                                                width: '100%',
+                                                                height: '100%',
+                                                                objectFit: 'cover'
+                                                            }}
+                                                            onError={(e) => {
+                                                                e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="150"%3E%3Crect fill="%23ddd" width="200" height="150"/%3E%3Ctext fill="%23999" font-family="Arial" font-size="12" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EFoto não encontrada%3C/text%3E%3C/svg%3E';
+                                                            }}
+                                                        />
+                                                        <button
+                                                            onClick={() => handleDeleteFoto(foto.path)}
+                                                            style={{
+                                                                position: 'absolute',
+                                                                top: '5px',
+                                                                right: '5px',
+                                                                background: 'rgba(213, 56, 41, 0.9)',
+                                                                color: 'white',
+                                                                border: 'none',
+                                                                borderRadius: '50%',
+                                                                width: '30px',
+                                                                height: '30px',
+                                                                cursor: 'pointer',
+                                                                fontSize: '18px',
+                                                                fontWeight: 'bold',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                                                            }}
+                                                            title="Deletar foto"
+                                                        >
+                                                            ×
+                                                        </button>
+                                                        <div style={{
+                                                            position: 'absolute',
+                                                            bottom: '0',
+                                                            left: '0',
+                                                            right: '0',
+                                                            background: 'rgba(0,0,0,0.7)',
+                                                            color: 'white',
+                                                            padding: '5px',
+                                                            fontSize: '12px',
+                                                            textAlign: 'center',
+                                                            overflow: 'hidden',
+                                                            textOverflow: 'ellipsis',
+                                                            whiteSpace: 'nowrap'
+                                                        }}>
+                                                            {foto.filename}
+                                                        </div>
+                                                    </div>
+                                                    <input
+                                                        type="text"
+                                                        value={foto.descricao || ''}
+                                                        onChange={(e) => {
+                                                            const newDescricao = e.target.value;
+                                                            // Atualizar localmente primeiro para feedback imediato
+                                                            setFotosListadas(prev => prev.map(f => 
+                                                                f.path === foto.path 
+                                                                    ? { ...f, descricao: newDescricao }
+                                                                    : f
+                                                            ));
+                                                        }}
+                                                        onBlur={(e) => {
+                                                            // Salvar no backend quando perder o foco
+                                                            handleUpdateDescricao(foto.path, e.target.value);
+                                                        }}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter') {
+                                                                e.target.blur();
+                                                            }
+                                                        }}
+                                                        placeholder="Descrição (max 20)"
+                                                        maxLength={20}
+                                                        style={{
+                                                            width: '100%',
+                                                            padding: '8px',
+                                                            border: 'none',
+                                                            borderTop: '1px solid #ddd',
+                                                            fontSize: '13px',
+                                                            outline: 'none',
+                                                            backgroundColor: 'white'
+                                                        }}
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {(!fotoMarca || fotoMarca === '0' || !fotoModelo) && (
+                                <div className="upload-placeholder">
+                                    <p>Por favor, selecione uma Marca e um Modelo para fazer upload de fotos.</p>
+                                </div>
+                            )}
+                        </div>
                     )}
                 </div>
             </div>
