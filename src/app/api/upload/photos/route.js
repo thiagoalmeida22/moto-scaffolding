@@ -75,9 +75,9 @@ export async function POST(request) {
             const bytes = await photo.arrayBuffer();
             const buffer = Buffer.from(bytes);
 
-            // Redimensionar e otimizar a imagem para 457x343px
+            // Redimensionar e otimizar a imagem para 427x320px (proporção 4:3)
             const resizedBuffer = await sharp(buffer)
-                .resize(457, 343, {
+                .resize(427, 320, {
                     fit: 'cover',
                     position: 'center'
                 })

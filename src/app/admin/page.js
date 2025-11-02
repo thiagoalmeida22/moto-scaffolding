@@ -219,8 +219,8 @@ const AdminDashboard = () => {
                 } else {
                     alert(`${selectedFotos.length} foto(s) linkada(s) com sucesso!`);
                 }
-                // Recarregar as fotos para atualizar o estado
-                await loadFotosForMoto(motoForm.marca, motoForm.modelo, motoForm.id);
+                // Limpar os dados selecionados (mesmo comportamento do botão CLEAR)
+                clearSelectedData();
             } else {
                 alert(`Erro: ${result.error}`);
             }

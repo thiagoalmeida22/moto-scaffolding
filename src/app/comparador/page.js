@@ -101,7 +101,7 @@ function Comparador() {
         }, 500);
     };
 
-    // Função para carregar fotos de uma moto
+    // Função para carregar fotos de uma moto (limita a 3 fotos)
     const loadMotoFotos = async (motoId, setter) => {
         if (!motoId) {
             setter([]);
@@ -114,7 +114,8 @@ function Comparador() {
             
             if (data.success && data.fotos && data.fotos.length > 0) {
                 // Garantir que o caminho está correto (precisa começar com /api/pictures)
-                const fotosComCaminho = data.fotos.map(f => {
+                // E limitar a 3 fotos
+                const fotosComCaminho = data.fotos.slice(0, 3).map(f => {
                     const path = f.foto_path;
                     // Se o caminho já começa com /api/pictures, usar como está
                     if (path.startsWith('/api/pictures')) {
@@ -700,21 +701,39 @@ function Comparador() {
                     {(moto1Fotos.length > 0 || moto2Fotos.length > 0 || moto3Fotos.length > 0) && (
                         <div className="motos-fotos-section" style={{ marginTop: '40px', padding: '20px', background: '#f8f9fa', borderRadius: '8px' }}>
                             <h2 style={{ marginBottom: '20px', color: '#333', textAlign: 'center' }}>Fotos das Motos</h2>
-                            <div className="fotos-grid-comparison" style={{ display: 'grid', gridTemplateColumns: `repeat(${numSelectedMotos}, 1fr)`, gap: '20px' }}>
-                                {moto1Fotos.length > 0 && (
-                                    <div className="moto-fotos">
-                                        <h3 style={{ marginBottom: '15px', color: '#d53829', textAlign: 'center' }}>
-                                            {selectedMoto1['Especificacoes']['Marca']} {selectedMoto1['Especificacoes']['Modelo']}
-                                        </h3>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                            {moto1Fotos.map((foto, index) => (
+                            
+                            {/* Cabeçalhos das Motos */}
+                            <div className="motos-fotos-header" style={{ display: 'grid', gridTemplateColumns: `repeat(${numSelectedMotos}, 1fr)`, gap: '20px', marginBottom: '20px' }}>
+                                {selectedMoto1 && (
+                                    <h3 style={{ margin: 0, color: '#d53829', textAlign: 'center' }}>
+                                        {selectedMoto1['Especificacoes']['Marca']} {selectedMoto1['Especificacoes']['Modelo']}
+                                    </h3>
+                                )}
+                                {selectedMoto2 && (
+                                    <h3 style={{ margin: 0, color: '#d53829', textAlign: 'center' }}>
+                                        {selectedMoto2['Especificacoes']['Marca']} {selectedMoto2['Especificacoes']['Modelo']}
+                                    </h3>
+                                )}
+                                {selectedMoto3 && (
+                                    <h3 style={{ margin: 0, color: '#d53829', textAlign: 'center' }}>
+                                        {selectedMoto3['Especificacoes']['Marca']} {selectedMoto3['Especificacoes']['Modelo']}
+                                    </h3>
+                                )}
+                            </div>
+
+                            {/* Grid de Fotos - Organizado por Linhas */}
+                            <div className="fotos-grid-comparison" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                {/* Linha 1 */}
+                                <div className="fotos-row" style={{ display: 'grid', gridTemplateColumns: `repeat(${numSelectedMotos}, 1fr)`, gap: '20px' }}>
+                                    {selectedMoto1 && (
+                                        <div className="foto-container">
+                                            {moto1Fotos[0] ? (
                                                 <img
-                                                    key={index}
-                                                    src={foto}
-                                                    alt={`Foto ${index + 1} - ${selectedMoto1['Especificacoes']['Modelo']}`}
+                                                    src={moto1Fotos[0]}
+                                                    alt={`Foto 1 - ${selectedMoto1['Especificacoes']['Modelo']}`}
                                                     style={{
-                                                        width: '457px',
-                                                        height: '343px',
+                                                        width: '427px',
+                                                        height: '320px',
                                                         objectFit: 'cover',
                                                         borderRadius: '8px',
                                                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
@@ -723,60 +742,234 @@ function Comparador() {
                                                         e.target.style.display = 'none';
                                                     }}
                                                 />
-                                            ))}
+                                            ) : (
+                                                <div className="foto-placeholder" style={{
+                                                    width: '427px',
+                                                    height: '320px',
+                                                    borderRadius: '8px'
+                                                }}></div>
+                                            )}
                                         </div>
+                                    )}
+                                    {selectedMoto2 && (
+                                        <div className="foto-container">
+                                            {moto2Fotos[0] ? (
+                                                <img
+                                                    src={moto2Fotos[0]}
+                                                    alt={`Foto 1 - ${selectedMoto2['Especificacoes']['Modelo']}`}
+                                                    style={{
+                                                        width: '427px',
+                                                        height: '320px',
+                                                        objectFit: 'cover',
+                                                        borderRadius: '8px',
+                                                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                                    }}
+                                                    onError={(e) => {
+                                                        e.target.style.display = 'none';
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div className="foto-placeholder" style={{
+                                                    width: '427px',
+                                                    height: '320px',
+                                                    borderRadius: '8px'
+                                                }}></div>
+                                            )}
+                                        </div>
+                                    )}
+                                    {selectedMoto3 && (
+                                        <div className="foto-container">
+                                            {moto3Fotos[0] ? (
+                                                <img
+                                                    src={moto3Fotos[0]}
+                                                    alt={`Foto 1 - ${selectedMoto3['Especificacoes']['Modelo']}`}
+                                                    style={{
+                                                        width: '427px',
+                                                        height: '320px',
+                                                        objectFit: 'cover',
+                                                        borderRadius: '8px',
+                                                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                                    }}
+                                                    onError={(e) => {
+                                                        e.target.style.display = 'none';
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div className="foto-placeholder" style={{
+                                                    width: '427px',
+                                                    height: '320px',
+                                                    borderRadius: '8px'
+                                                }}></div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Linha 2 */}
+                                {(moto1Fotos.length > 1 || moto2Fotos.length > 1 || moto3Fotos.length > 1) && (
+                                    <div className="fotos-row" style={{ display: 'grid', gridTemplateColumns: `repeat(${numSelectedMotos}, 1fr)`, gap: '20px' }}>
+                                        {selectedMoto1 && (
+                                            <div className="foto-container">
+                                                {moto1Fotos[1] ? (
+                                                    <img
+                                                        src={moto1Fotos[1]}
+                                                        alt={`Foto 2 - ${selectedMoto1['Especificacoes']['Modelo']}`}
+                                                        style={{
+                                                            width: '427px',
+                                                            height: '320px',
+                                                            objectFit: 'cover',
+                                                            borderRadius: '8px',
+                                                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                                        }}
+                                                        onError={(e) => {
+                                                            e.target.style.display = 'none';
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <div className="foto-placeholder" style={{
+                                                        width: '427px',
+                                                        height: '320px',
+                                                        borderRadius: '8px'
+                                                    }}></div>
+                                                )}
+                                            </div>
+                                        )}
+                                        {selectedMoto2 && (
+                                            <div className="foto-container">
+                                                {moto2Fotos[1] ? (
+                                                    <img
+                                                        src={moto2Fotos[1]}
+                                                        alt={`Foto 2 - ${selectedMoto2['Especificacoes']['Modelo']}`}
+                                                        style={{
+                                                            width: '427px',
+                                                            height: '320px',
+                                                            objectFit: 'cover',
+                                                            borderRadius: '8px',
+                                                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                                        }}
+                                                        onError={(e) => {
+                                                            e.target.style.display = 'none';
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <div className="foto-placeholder" style={{
+                                                        width: '427px',
+                                                        height: '320px',
+                                                        borderRadius: '8px'
+                                                    }}></div>
+                                                )}
+                                            </div>
+                                        )}
+                                        {selectedMoto3 && (
+                                            <div className="foto-container">
+                                                {moto3Fotos[1] ? (
+                                                    <img
+                                                        src={moto3Fotos[1]}
+                                                        alt={`Foto 2 - ${selectedMoto3['Especificacoes']['Modelo']}`}
+                                                        style={{
+                                                            width: '427px',
+                                                            height: '320px',
+                                                            objectFit: 'cover',
+                                                            borderRadius: '8px',
+                                                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                                        }}
+                                                        onError={(e) => {
+                                                            e.target.style.display = 'none';
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <div className="foto-placeholder" style={{
+                                                        width: '427px',
+                                                        height: '320px',
+                                                        borderRadius: '8px'
+                                                    }}></div>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 )}
-                                {moto2Fotos.length > 0 && (
-                                    <div className="moto-fotos">
-                                        <h3 style={{ marginBottom: '15px', color: '#d53829', textAlign: 'center' }}>
-                                            {selectedMoto2['Especificacoes']['Marca']} {selectedMoto2['Especificacoes']['Modelo']}
-                                        </h3>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                            {moto2Fotos.map((foto, index) => (
-                                                <img
-                                                    key={index}
-                                                    src={foto}
-                                                    alt={`Foto ${index + 1} - ${selectedMoto2['Especificacoes']['Modelo']}`}
-                                                    style={{
-                                                        width: '457px',
-                                                        height: '343px',
-                                                        objectFit: 'cover',
-                                                        borderRadius: '8px',
-                                                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                                                    }}
-                                                    onError={(e) => {
-                                                        e.target.style.display = 'none';
-                                                    }}
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                                {moto3Fotos.length > 0 && selectedMoto3 && (
-                                    <div className="moto-fotos">
-                                        <h3 style={{ marginBottom: '15px', color: '#d53829', textAlign: 'center' }}>
-                                            {selectedMoto3['Especificacoes']['Marca']} {selectedMoto3['Especificacoes']['Modelo']}
-                                        </h3>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                            {moto3Fotos.map((foto, index) => (
-                                                <img
-                                                    key={index}
-                                                    src={foto}
-                                                    alt={`Foto ${index + 1} - ${selectedMoto3['Especificacoes']['Modelo']}`}
-                                                    style={{
-                                                        width: '457px',
-                                                        height: '343px',
-                                                        objectFit: 'cover',
-                                                        borderRadius: '8px',
-                                                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                                                    }}
-                                                    onError={(e) => {
-                                                        e.target.style.display = 'none';
-                                                    }}
-                                                />
-                                            ))}
-                                        </div>
+
+                                {/* Linha 3 */}
+                                {(moto1Fotos.length > 2 || moto2Fotos.length > 2 || moto3Fotos.length > 2) && (
+                                    <div className="fotos-row" style={{ display: 'grid', gridTemplateColumns: `repeat(${numSelectedMotos}, 1fr)`, gap: '20px' }}>
+                                        {selectedMoto1 && (
+                                            <div className="foto-container">
+                                                {moto1Fotos[2] ? (
+                                                    <img
+                                                        src={moto1Fotos[2]}
+                                                        alt={`Foto 3 - ${selectedMoto1['Especificacoes']['Modelo']}`}
+                                                        style={{
+                                                            width: '427px',
+                                                            height: '320px',
+                                                            objectFit: 'cover',
+                                                            borderRadius: '8px',
+                                                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                                        }}
+                                                        onError={(e) => {
+                                                            e.target.style.display = 'none';
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <div className="foto-placeholder" style={{
+                                                        width: '427px',
+                                                        height: '320px',
+                                                        borderRadius: '8px'
+                                                    }}></div>
+                                                )}
+                                            </div>
+                                        )}
+                                        {selectedMoto2 && (
+                                            <div className="foto-container">
+                                                {moto2Fotos[2] ? (
+                                                    <img
+                                                        src={moto2Fotos[2]}
+                                                        alt={`Foto 3 - ${selectedMoto2['Especificacoes']['Modelo']}`}
+                                                        style={{
+                                                            width: '427px',
+                                                            height: '320px',
+                                                            objectFit: 'cover',
+                                                            borderRadius: '8px',
+                                                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                                        }}
+                                                        onError={(e) => {
+                                                            e.target.style.display = 'none';
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <div className="foto-placeholder" style={{
+                                                        width: '427px',
+                                                        height: '320px',
+                                                        borderRadius: '8px'
+                                                    }}></div>
+                                                )}
+                                            </div>
+                                        )}
+                                        {selectedMoto3 && (
+                                            <div className="foto-container">
+                                                {moto3Fotos[2] ? (
+                                                    <img
+                                                        src={moto3Fotos[2]}
+                                                        alt={`Foto 3 - ${selectedMoto3['Especificacoes']['Modelo']}`}
+                                                        style={{
+                                                            width: '427px',
+                                                            height: '320px',
+                                                            objectFit: 'cover',
+                                                            borderRadius: '8px',
+                                                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                                        }}
+                                                        onError={(e) => {
+                                                            e.target.style.display = 'none';
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <div className="foto-placeholder" style={{
+                                                        width: '427px',
+                                                        height: '320px',
+                                                        borderRadius: '8px'
+                                                    }}></div>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
