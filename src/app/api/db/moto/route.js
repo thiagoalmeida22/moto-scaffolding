@@ -19,6 +19,7 @@ export async function GET(request, { params }) {
         // return Response.json(results[0]);
         console.log(results[0]);
         return Response.json({
+            id: results[0].id,
             'Especificacoes': {
                 'Modelo': results[0].modelo,
                 'Marca': results[0].marca,
@@ -74,9 +75,12 @@ export async function GET(request, { params }) {
                 'Autonomia (Gasolina)': results[0].autonomia_G,
                 'Autonomia (Alcool)': results[0].autonomia_A,
             },
-            'Extras': JSON.parse(results[0].aditional) || '',
+            'Extras': results[0].aditional && results[0].aditional.trim() !== '' 
+                ? JSON.parse(results[0].aditional) 
+                : {},
         });
     } catch (err) {
         console.log(err);
+        return Response.json({ error: 'Erro ao buscar dados da moto' }, { status: 500 });
     }
 }
