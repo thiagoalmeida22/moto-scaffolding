@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { motoInitialState } from './helper';
 import './style.css';
 
@@ -1178,7 +1179,7 @@ const AdminDashboard = () => {
                                     {isLoadingFotos ? (
                                         <p>Carregando fotos...</p>
                                     ) : availableFotos.length === 0 ? (
-                                        <p style={{ color: '#999' }}>Nenhuma foto disponível para este modelo. Faça upload de fotos na aba "Fotos" primeiro.</p>
+                                        <p style={{ color: '#999' }}>Nenhuma foto disponível para este modelo. Faça upload de fotos na aba &quot;Fotos&quot; primeiro.</p>
                                     ) : (
                                         <>
                                             <div className="fotos-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '15px', marginBottom: '20px' }}>
@@ -1196,17 +1197,14 @@ const AdminDashboard = () => {
                                                             aspectRatio: '4/3'
                                                         }}
                                                     >
-                                                        <img
+                                                        <Image
                                                             src={foto.path}
                                                             alt={foto.filename}
+                                                            fill
                                                             style={{
-                                                                width: '100%',
-                                                                height: '100%',
                                                                 objectFit: 'cover'
                                                             }}
-                                                            onError={(e) => {
-                                                                e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="150" height="150"%3E%3Crect fill="%23ddd" width="150" height="150"/%3E%3Ctext fill="%23999" font-family="Arial" font-size="12" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EFoto não encontrada%3C/text%3E%3C/svg%3E';
-                                                            }}
+                                                            unoptimized
                                                         />
                                                         {selectedFotos.includes(foto.path) && (
                                                             <div style={{
@@ -1256,17 +1254,15 @@ const AdminDashboard = () => {
                                                                         flexShrink: 0
                                                                     }}
                                                                 >
-                                                                    <img
+                                                                    <Image
                                                                         src={foto?.path || fotoPath}
                                                                         alt={`Foto ${index + 1}`}
+                                                                        width={120}
+                                                                        height={90}
                                                                         style={{
-                                                                            width: '100%',
-                                                                            height: '100%',
                                                                             objectFit: 'cover'
                                                                         }}
-                                                                        onError={(e) => {
-                                                                            e.target.style.display = 'none';
-                                                                        }}
+                                                                        unoptimized
                                                                     />
                                                                     <div style={{
                                                                         position: 'absolute',
@@ -1470,17 +1466,14 @@ const AdminDashboard = () => {
                                                         aspectRatio: '4/3',
                                                         background: '#f9f9f9'
                                                     }}>
-                                                        <img
+                                                        <Image
                                                             src={foto.path}
                                                             alt={foto.filename}
+                                                            fill
                                                             style={{
-                                                                width: '100%',
-                                                                height: '100%',
                                                                 objectFit: 'cover'
                                                             }}
-                                                            onError={(e) => {
-                                                                e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="150"%3E%3Crect fill="%23ddd" width="200" height="150"/%3E%3Ctext fill="%23999" font-family="Arial" font-size="12" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EFoto não encontrada%3C/text%3E%3C/svg%3E';
-                                                            }}
+                                                            unoptimized
                                                         />
                                                         <button
                                                             onClick={() => handleDeleteFoto(foto.path)}

@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import './style.css';
 import ComparisonBlock from './components/ComparisonBlock';
 
-function Comparador() {
+function ComparadorContent() {
     const searchParams = useSearchParams();
     const [marcas, setMarcas] = useState([]);
     const [modelos1, setModelos1] = useState(null);
@@ -728,19 +729,17 @@ function Comparador() {
                                     {selectedMoto1 && (
                                         <div className="foto-container">
                                             {moto1Fotos[0] ? (
-                                                <img
+                                                <Image
                                                     src={moto1Fotos[0]}
                                                     alt={`Foto 1 - ${selectedMoto1['Especificacoes']['Modelo']}`}
+                                                    width={427}
+                                                    height={320}
                                                     style={{
-                                                        width: '427px',
-                                                        height: '320px',
                                                         objectFit: 'cover',
                                                         borderRadius: '8px',
                                                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                                                     }}
-                                                    onError={(e) => {
-                                                        e.target.style.display = 'none';
-                                                    }}
+                                                    unoptimized
                                                 />
                                             ) : (
                                                 <div className="foto-placeholder" style={{
@@ -754,19 +753,17 @@ function Comparador() {
                                     {selectedMoto2 && (
                                         <div className="foto-container">
                                             {moto2Fotos[0] ? (
-                                                <img
+                                                <Image
                                                     src={moto2Fotos[0]}
                                                     alt={`Foto 1 - ${selectedMoto2['Especificacoes']['Modelo']}`}
+                                                    width={427}
+                                                    height={320}
                                                     style={{
-                                                        width: '427px',
-                                                        height: '320px',
                                                         objectFit: 'cover',
                                                         borderRadius: '8px',
                                                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                                                     }}
-                                                    onError={(e) => {
-                                                        e.target.style.display = 'none';
-                                                    }}
+                                                    unoptimized
                                                 />
                                             ) : (
                                                 <div className="foto-placeholder" style={{
@@ -780,19 +777,17 @@ function Comparador() {
                                     {selectedMoto3 && (
                                         <div className="foto-container">
                                             {moto3Fotos[0] ? (
-                                                <img
+                                                <Image
                                                     src={moto3Fotos[0]}
                                                     alt={`Foto 1 - ${selectedMoto3['Especificacoes']['Modelo']}`}
+                                                    width={427}
+                                                    height={320}
                                                     style={{
-                                                        width: '427px',
-                                                        height: '320px',
                                                         objectFit: 'cover',
                                                         borderRadius: '8px',
                                                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                                                     }}
-                                                    onError={(e) => {
-                                                        e.target.style.display = 'none';
-                                                    }}
+                                                    unoptimized
                                                 />
                                             ) : (
                                                 <div className="foto-placeholder" style={{
@@ -811,16 +806,17 @@ function Comparador() {
                                         {selectedMoto1 && (
                                             <div className="foto-container">
                                                 {moto1Fotos[1] ? (
-                                                    <img
+                                                    <Image
                                                         src={moto1Fotos[1]}
                                                         alt={`Foto 2 - ${selectedMoto1['Especificacoes']['Modelo']}`}
+                                                        width={427}
+                                                        height={320}
                                                         style={{
-                                                            width: '427px',
-                                                            height: '320px',
                                                             objectFit: 'cover',
                                                             borderRadius: '8px',
                                                             boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                                                         }}
+                                                        unoptimized
                                                         onError={(e) => {
                                                             e.target.style.display = 'none';
                                                         }}
@@ -837,16 +833,17 @@ function Comparador() {
                                         {selectedMoto2 && (
                                             <div className="foto-container">
                                                 {moto2Fotos[1] ? (
-                                                    <img
+                                                    <Image
                                                         src={moto2Fotos[1]}
                                                         alt={`Foto 2 - ${selectedMoto2['Especificacoes']['Modelo']}`}
+                                                        width={427}
+                                                        height={320}
                                                         style={{
-                                                            width: '427px',
-                                                            height: '320px',
                                                             objectFit: 'cover',
                                                             borderRadius: '8px',
                                                             boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                                                         }}
+                                                        unoptimized
                                                         onError={(e) => {
                                                             e.target.style.display = 'none';
                                                         }}
@@ -863,16 +860,17 @@ function Comparador() {
                                         {selectedMoto3 && (
                                             <div className="foto-container">
                                                 {moto3Fotos[1] ? (
-                                                    <img
+                                                    <Image
                                                         src={moto3Fotos[1]}
                                                         alt={`Foto 2 - ${selectedMoto3['Especificacoes']['Modelo']}`}
+                                                        width={427}
+                                                        height={320}
                                                         style={{
-                                                            width: '427px',
-                                                            height: '320px',
                                                             objectFit: 'cover',
                                                             borderRadius: '8px',
                                                             boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                                                         }}
+                                                        unoptimized
                                                         onError={(e) => {
                                                             e.target.style.display = 'none';
                                                         }}
@@ -895,16 +893,17 @@ function Comparador() {
                                         {selectedMoto1 && (
                                             <div className="foto-container">
                                                 {moto1Fotos[2] ? (
-                                                    <img
+                                                    <Image
                                                         src={moto1Fotos[2]}
                                                         alt={`Foto 3 - ${selectedMoto1['Especificacoes']['Modelo']}`}
+                                                        width={427}
+                                                        height={320}
                                                         style={{
-                                                            width: '427px',
-                                                            height: '320px',
                                                             objectFit: 'cover',
                                                             borderRadius: '8px',
                                                             boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                                                         }}
+                                                        unoptimized
                                                         onError={(e) => {
                                                             e.target.style.display = 'none';
                                                         }}
@@ -921,16 +920,17 @@ function Comparador() {
                                         {selectedMoto2 && (
                                             <div className="foto-container">
                                                 {moto2Fotos[2] ? (
-                                                    <img
+                                                    <Image
                                                         src={moto2Fotos[2]}
                                                         alt={`Foto 3 - ${selectedMoto2['Especificacoes']['Modelo']}`}
+                                                        width={427}
+                                                        height={320}
                                                         style={{
-                                                            width: '427px',
-                                                            height: '320px',
                                                             objectFit: 'cover',
                                                             borderRadius: '8px',
                                                             boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                                                         }}
+                                                        unoptimized
                                                         onError={(e) => {
                                                             e.target.style.display = 'none';
                                                         }}
@@ -947,16 +947,17 @@ function Comparador() {
                                         {selectedMoto3 && (
                                             <div className="foto-container">
                                                 {moto3Fotos[2] ? (
-                                                    <img
+                                                    <Image
                                                         src={moto3Fotos[2]}
                                                         alt={`Foto 3 - ${selectedMoto3['Especificacoes']['Modelo']}`}
+                                                        width={427}
+                                                        height={320}
                                                         style={{
-                                                            width: '427px',
-                                                            height: '320px',
                                                             objectFit: 'cover',
                                                             borderRadius: '8px',
                                                             boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                                                         }}
+                                                        unoptimized
                                                         onError={(e) => {
                                                             e.target.style.display = 'none';
                                                         }}
@@ -980,6 +981,21 @@ function Comparador() {
                 </>
             )}
         </div>
+    );
+}
+
+function Comparador() {
+    return (
+        <Suspense fallback={
+            <div className="comparador-container">
+                <h1>Comparador de Motos</h1>
+                <div style={{ padding: '60px 20px', textAlign: 'center' }}>
+                    <p>Carregando comparador...</p>
+                </div>
+            </div>
+        }>
+            <ComparadorContent />
+        </Suspense>
     );
 }
 
