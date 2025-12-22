@@ -74,6 +74,7 @@ export async function GET(request, { params }) {
                 'Consumo (Alcool)': results[0].consumo_A,
                 'Autonomia (Gasolina)': results[0].autonomia_G,
                 'Autonomia (Alcool)': results[0].autonomia_A,
+                'Tanque': results[0].tanque,
             },
             'Extras': results[0].aditional && results[0].aditional.trim() !== '' 
                 ? JSON.parse(results[0].aditional) 

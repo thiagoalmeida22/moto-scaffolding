@@ -3,4 +3,17 @@ INSERT INTO Marcas (nome) VALUES
 ('Yamaha'),
 ('Bajaj'),
 ('Haojue'),
-('BMW');
+('BMW'),
+('Kawasaki'),
+('Suzuki'),
+('Triumph'),
+('Dafra'),
+('Royal Enfield'),
+('KTM'),
+('Shineray'),
+('Harley-Davidson'),
+('Zontes'),
+('Kasinski'),
+('Sundown'),
+('Ducati'),
+('Avelloz');
