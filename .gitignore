@@ -20,6 +20,8 @@
 # production
 /build
 
+/guides
+
 # misc
 .DS_Store
 *.pem
