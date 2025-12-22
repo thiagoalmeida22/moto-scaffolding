@@ -22,16 +22,15 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    # Limites de recursos (opcional, mas recomendado)
-    # Ajustado para VPS com 1 CPU
+    # Limites de recursos (ajustado para VPS: 1 CPU, 4GB RAM)
     deploy:
       resources:
         limits:
           cpus: '1.0'
-          memory: 1G
+          memory: 2G
         reservations:
           cpus: '0.25'
-          memory: 256M
+          memory: 512M
 
   nginx:
     image: nginx:alpine
@@ -60,8 +59,10 @@ services:
     image: mysql:8.0
     container_name: moto-scaffolding-mysql
     restart: unless-stopped
+    env_file:
+      - .env.production
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-change_me_root_password}
+      MYSQL_ROOT_PASSWORD: ${PROD_DB_PASS:-change_me_password}
       MYSQL_DATABASE: ${PROD_DB_NAME:-motos}
       MYSQL_USER: ${PROD_DB_USER:-moto_user}
       MYSQL_PASSWORD: ${PROD_DB_PASS:-change_me_password}
