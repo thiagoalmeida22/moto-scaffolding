@@ -1,0 +1,4 @@
+# Coloque seus scripts SQL de inicialização aqui
+# Eles serão executados automaticamente na primeira inicialização do MySQL
+# Exemplo: migrations ou dados iniciais
+
