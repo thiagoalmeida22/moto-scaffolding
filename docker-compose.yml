@@ -62,7 +62,7 @@ services:
     env_file:
       - .env.production
     environment:
-      MYSQL_ROOT_PASSWORD: ${PROD_DB_PASS:-change_me_password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-${PROD_DB_PASS:-change_me_password}}
       MYSQL_DATABASE: ${PROD_DB_NAME:-motos}
       MYSQL_USER: ${PROD_DB_USER:-moto_user}
       MYSQL_PASSWORD: ${PROD_DB_PASS:-change_me_password}
