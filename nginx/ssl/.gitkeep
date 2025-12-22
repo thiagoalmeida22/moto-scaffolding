@@ -1,0 +1,4 @@
+# Este arquivo mantém o diretório ssl no Git
+# Coloque seus certificados SSL aqui (cert.pem e key.pem)
+# NUNCA commite certificados reais!
+
