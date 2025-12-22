@@ -301,6 +301,43 @@ const AdminDashboard = () => {
         setActiveTab('');
     };
 
+    /* ===== Função para deletar moto com bypass das validações do formulário ===== */
+    const handleDeleteMoto = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!selectedMoto || !motoForm.id) {
+            alert('Nenhuma moto selecionada para deletar');
+            return;
+        }
+
+        const confirmMessage = `Tem certeza que deseja deletar a moto "${motoForm.modelo}" (${motoForm.ano})?\n\nEsta ação não pode ser desfeita!`;
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/db/moto/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: motoForm.id })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert('Moto deletada com sucesso!');
+                clearSelectedData();
+                setActiveTab('');
+            } else {
+                alert(`Erro ao deletar moto: ${data.message || 'Erro desconhecido'}`);
+            }
+        } catch (error) {
+            console.error('Erro ao deletar moto:', error);
+            alert('Erro ao deletar moto. Verifique o console para mais detalhes.');
+        }
+    };
+
     const handleMarcaSubmit = async (e) => {
         e.preventDefault();
         let endpoint = '';
@@ -1161,9 +1198,18 @@ const AdminDashboard = () => {
                                 {selectedMoto ? 'Editar Moto' : 'Criar Moto'}
                             </button>
                             <button
-                                type="submit"
-                                onClick={() => motoForm.action = 'delete'}
+                                type="button"
+                                onClick={handleDeleteMoto}
                                 disabled={!selectedMoto}
+                                style={{
+                                    backgroundColor: '#dc3545',
+                                    color: 'white',
+                                    padding: '10px 20px',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: selectedMoto ? 'pointer' : 'not-allowed',
+                                    opacity: selectedMoto ? 1 : 0.6
+                                }}
                             >
                                 Delete Moto
                             </button>

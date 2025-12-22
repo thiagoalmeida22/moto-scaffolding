@@ -6,13 +6,17 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "merge-fipe": "node scripts/merge-fipe-dictionaries.js",
+    "fetch-fipe-modelos": "node scripts/fetch-fipe-modelos.js",
+    "fetch-fipe-anos": "node scripts/fetch-fipe-anos.js",
+    "fetch-fipe-code": "node scripts/fetch-fipe-code.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
     "dotenv": "^17.0.0",
     "express": "^5.1.0",
-    "jose": "^6.0.11",
+    "jose": "^6.1.0",
     "mysql2": "^3.14.1",
     "next": "15.3.0",
     "react": "^19.0.0",
@@ -23,6 +27,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "eslint": "^9",
-    "eslint-config-next": "15.3.0"
+    "eslint-config-next": "15.3.0",
+    "xlsx": "^0.18.5"
   }
 }
