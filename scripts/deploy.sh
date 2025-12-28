@@ -23,15 +23,21 @@ fi
 # Verifica se o arquivo .env.production existe
 if [ ! -f ".env.production" ]; then
     echo -e "${YELLOW}⚠️  Aviso: .env.production não encontrado!${NC}"
-    echo "Copiando .env.production.example para .env.production..."
-    if [ -f ".env.production.example" ]; then
-        cp .env.production.example .env.production
+    echo "Copiando env.production.template para .env.production..."
+    if [ -f "env.production.template" ]; then
+        cp env.production.template .env.production
         echo -e "${YELLOW}⚠️  Por favor, configure as variáveis em .env.production antes de continuar!${NC}"
         exit 1
     else
-        echo -e "${RED}❌ Erro: .env.production.example não encontrado!${NC}"
+        echo -e "${RED}❌ Erro: env.production.template não encontrado!${NC}"
         exit 1
     fi
+fi
+
+# Criar .env a partir do .env.production (Docker Compose lê .env automaticamente)
+if [ ! -f ".env" ] || [ ".env.production" -nt ".env" ]; then
+    echo "📝 Criando .env a partir do .env.production..."
+    cp .env.production .env
 fi
 
 # Verifica se Docker está instalado
