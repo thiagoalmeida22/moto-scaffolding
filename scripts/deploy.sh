@@ -40,6 +40,18 @@ if [ ! -f ".env" ] || [ ".env.production" -nt ".env" ]; then
     cp .env.production .env
 fi
 
+# Validar configurações críticas
+if grep -q "^PROD_DB_USER=root" .env; then
+    echo -e "${RED}❌ ERRO: PROD_DB_USER não pode ser 'root'!${NC}"
+    echo "   O MySQL não permite usar 'root' como MYSQL_USER"
+    echo "   Corrigindo automaticamente para 'moto_user'..."
+    sed -i 's/^PROD_DB_USER=root/PROD_DB_USER=moto_user/g' .env
+    if [ -f ".env.production" ]; then
+        sed -i 's/^PROD_DB_USER=root/PROD_DB_USER=moto_user/g' .env.production
+    fi
+    echo -e "${GREEN}✅ PROD_DB_USER corrigido para 'moto_user'${NC}"
+fi
+
 # Verifica se Docker está instalado
 if ! command -v docker &> /dev/null; then
     echo -e "${RED}❌ Docker não está instalado!${NC}"

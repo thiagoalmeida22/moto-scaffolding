@@ -27,5 +27,19 @@ if grep -q "PROD_DB_HOST=127.0.0.1" .env || grep -q "PROD_DB_HOST=localhost" .en
     fi
 fi
 
+# Verificar se PROD_DB_USER é "root" (não permitido)
+if grep -q "^PROD_DB_USER=root" .env; then
+    echo "❌ ERRO: PROD_DB_USER não pode ser 'root'!"
+    echo "   O MySQL não permite usar 'root' como MYSQL_USER"
+    echo "   Corrigindo automaticamente para 'moto_user'..."
+    sed -i 's/^PROD_DB_USER=root/PROD_DB_USER=moto_user/g' .env
+    # Atualizar também no .env.production
+    if [ -f ".env.production" ]; then
+        sed -i 's/^PROD_DB_USER=root/PROD_DB_USER=moto_user/g' .env.production
+    fi
+    echo "✅ PROD_DB_USER corrigido para 'moto_user'"
+    echo "   Você pode alterar para outro nome se desejar (mas não pode ser 'root')"
+fi
+
 echo "✅ Configuração concluída!"
 
