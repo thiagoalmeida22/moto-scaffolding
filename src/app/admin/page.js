@@ -42,6 +42,14 @@ const AdminDashboard = () => {
         }
         const marcaId = event.target.value;
         setSelectedMarca(marcaId);
+        setSelectedMoto(false);
+        // Resetar formulário de moto quando a marca muda (já que não há modelo/ano selecionado ainda)
+        setMotoForm(motoInitialState);
+        // Limpar modelos, anos e fotos quando a marca muda
+        setModelos([]);
+        setAnos([]);
+        setAvailableFotos([]);
+        setSelectedFotos([]);
         // Chamando a API para buscar os modelos da marca selecionada
         const response = await fetch(`/api/db/marca/${marcaId}`);
         const data = await response.json();
@@ -56,6 +64,13 @@ const AdminDashboard = () => {
         }
         const modeloSel = event.target.value;
         setSelectedModelo(modeloSel);
+        setSelectedMoto(false);
+        // Resetar formulário de moto quando o modelo muda (já que não há ano selecionado ainda)
+        setMotoForm(motoInitialState);
+        // Limpar anos e fotos quando o modelo muda
+        setAnos([]);
+        setAvailableFotos([]);
+        setSelectedFotos([]);
         // Chamando a API para buscar os anos referentes ao modelo selecionado
         const response = await fetch(`/api/db/modelo/${modeloSel}`);
         const data = await response.json();
@@ -69,6 +84,9 @@ const AdminDashboard = () => {
             return;
         }
         const ano = event.target.value;
+        // Limpar fotos antes de carregar nova moto
+        setAvailableFotos([]);
+        setSelectedFotos([]);
         const response = await fetch(
             `/api/db/moto/getWithId?modelo=${selectedModelo}&ano=${ano}`
         );
@@ -76,48 +94,51 @@ const AdminDashboard = () => {
         data.marca = marcas.find((ele) => ele.nome === data.marca).id
         setSelectedMoto(true);
         if (data) {
+            // Helper function to ensure values are never null or undefined
+            const safeValue = (value) => value != null ? String(value) : '';
+            
             setMotoForm({
                 action: '',
-                id: data.id,
-                modelo: data.modelo,
-                marca: data.marca,
-                ano: data.ano,
-                categoria: data.categoria,
-                preco_fipe: data['preço_fipe'],
-                tipo_motor: data.tipo_motor,
-                cilindrada: data.cilindrada,
-                potencia_A: data.potencia_A,
-                potencia_G: data.potencia_G,
-                torque_A: data.torque_A,
-                torque_G: data.torque_G,
-                partida: data.partida,
-                refrigeracao: data.refrigeracao,
-                cambio: data.cambio,
-                embreagem: data.embreagem,
-                suspensao_d: data.suspensao_d,
-                suspensao_t: data.suspensao_t,
-                tipo_freio: data.tipo_freio,
-                freio_d: data.freio_d,
-                freio_t: data.freio_t,
-                pneu_d: data.pneu_d,
-                pneu_t: data.pneu_t,
-                chassi: data.chassi,
-                alt_assento: data.alt_assento,
-                altura: data.altura,
-                comprimento: data.comprimento,
-                largura: data.largura,
-                dist_eixos: data.dist_eixos,
-                peso: data.peso,
-                cap_carga: data.cap_carga,
-                vel_max: data.vel_max,
-                acel_100: data.acel_100,
-                combustivel: data.combustivel,
-                consumo_A: data.consumo_A,
-                consumo_G: data.consumo_G,
-                autonomia_A: data.autonomia_A,
-                autonomia_G: data.autonomia_G,
-                tanque: data.tanque,
-                aditional: data.aditional
+                id: data.id || '',
+                modelo: safeValue(data.modelo),
+                marca: safeValue(data.marca),
+                ano: safeValue(data.ano),
+                categoria: safeValue(data.categoria),
+                preco_fipe: safeValue(data['preco_fipe']),
+                tipo_motor: safeValue(data.tipo_motor),
+                cilindrada: safeValue(data.cilindrada),
+                potencia_A: safeValue(data.potencia_A),
+                potencia_G: safeValue(data.potencia_G),
+                torque_A: safeValue(data.torque_A),
+                torque_G: safeValue(data.torque_G),
+                partida: safeValue(data.partida),
+                refrigeracao: safeValue(data.refrigeracao),
+                cambio: safeValue(data.cambio),
+                embreagem: safeValue(data.embreagem),
+                suspensao_d: safeValue(data.suspensao_d),
+                suspensao_t: safeValue(data.suspensao_t),
+                tipo_freio: safeValue(data.tipo_freio),
+                freio_d: safeValue(data.freio_d),
+                freio_t: safeValue(data.freio_t),
+                pneu_d: safeValue(data.pneu_d),
+                pneu_t: safeValue(data.pneu_t),
+                chassi: safeValue(data.chassi),
+                alt_assento: safeValue(data.alt_assento),
+                altura: safeValue(data.altura),
+                comprimento: safeValue(data.comprimento),
+                largura: safeValue(data.largura),
+                dist_eixos: safeValue(data.dist_eixos),
+                peso: safeValue(data.peso),
+                cap_carga: safeValue(data.cap_carga),
+                vel_max: safeValue(data.vel_max),
+                acel_100: safeValue(data.acel_100),
+                combustivel: safeValue(data.combustivel),
+                consumo_A: safeValue(data.consumo_A),
+                consumo_G: safeValue(data.consumo_G),
+                autonomia_A: safeValue(data.autonomia_A),
+                autonomia_G: safeValue(data.autonomia_G),
+                tanque: safeValue(data.tanque),
+                aditional: safeValue(data.aditional)
             });
             
             // Carregar fotos disponíveis e já linkadas
@@ -128,6 +149,9 @@ const AdminDashboard = () => {
     const loadFotosForMoto = async (marcaId, modelo, motoId) => {
         try {
             setIsLoadingFotos(true);
+            // Limpar estados antes de carregar novos dados
+            setAvailableFotos([]);
+            setSelectedFotos([]);
             
             // Carregar fotos disponíveis
             const fotosResponse = await fetch(`/api/db/moto-fotos/list?marca=${marcaId}&modelo=${encodeURIComponent(modelo)}`);
@@ -135,6 +159,8 @@ const AdminDashboard = () => {
             
             if (fotosData.success) {
                 setAvailableFotos(fotosData.fotos || []);
+            } else {
+                setAvailableFotos([]);
             }
             
             // Carregar fotos já linkadas à moto
@@ -143,9 +169,14 @@ const AdminDashboard = () => {
             
             if (linkedData.success) {
                 setSelectedFotos(linkedData.fotos.map(f => f.foto_path) || []);
+            } else {
+                setSelectedFotos([]);
             }
         } catch (error) {
             console.error('Erro ao carregar fotos:', error);
+            // Em caso de erro, garantir que os estados estejam limpos
+            setAvailableFotos([]);
+            setSelectedFotos([]);
         } finally {
             setIsLoadingFotos(false);
         }
