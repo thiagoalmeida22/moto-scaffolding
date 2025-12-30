@@ -64,6 +64,13 @@ if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/
     exit 1
 fi
 
+# Gera configuração do nginx baseada na existência de certificados SSL
+if [ -f "scripts/generate-nginx-config.sh" ]; then
+    echo "⚙️  Gerando configuração do nginx..."
+    chmod +x scripts/generate-nginx-config.sh
+    ./scripts/generate-nginx-config.sh
+fi
+
 # Para containers existentes
 echo "🛑 Parando containers existentes..."
 docker-compose down || true
@@ -103,6 +110,29 @@ else
     echo -e "${YELLOW}⚠️  NGINX ainda não está respondendo, verifique os logs com: docker-compose logs nginx${NC}"
 fi
 
+# Verifica se certificados SSL existem
+echo ""
+echo "🔒 Verificando configuração SSL..."
+if [ -f "nginx/ssl/cert.pem" ] && [ -f "nginx/ssl/key.pem" ]; then
+    echo -e "${GREEN}✅ Certificados SSL encontrados! HTTPS está habilitado.${NC}"
+    
+    # Testa HTTPS
+    if curl -k -f https://localhost/health > /dev/null 2>&1; then
+        echo -e "${GREEN}✅ HTTPS está funcionando!${NC}"
+    else
+        echo -e "${YELLOW}⚠️  HTTPS pode não estar funcionando corretamente${NC}"
+    fi
+else
+    echo -e "${YELLOW}⚠️  Certificados SSL não encontrados. Site está rodando apenas em HTTP.${NC}"
+    echo ""
+    echo "📝 Para habilitar HTTPS, execute:"
+    echo "   ./scripts/setup-ssl.sh seu-dominio.com seu-email@exemplo.com"
+    echo ""
+    echo "   Ou configure manualmente os certificados em:"
+    echo "   - nginx/ssl/cert.pem"
+    echo "   - nginx/ssl/key.pem"
+fi
+
 # Mostra status dos containers
 echo ""
 echo "📊 Status dos containers:"
@@ -121,4 +151,9 @@ echo "  - Ver logs: docker-compose logs -f"
 echo "  - Parar: docker-compose down"
 echo "  - Reiniciar: docker-compose restart"
 echo "  - Status: docker-compose ps"
+echo ""
+if [ ! -f "nginx/ssl/cert.pem" ] || [ ! -f "nginx/ssl/key.pem" ]; then
+    echo "🔒 Para habilitar HTTPS:"
+    echo "  ./scripts/setup-ssl.sh seu-dominio.com seu-email@exemplo.com"
+fi
 
