@@ -154,7 +154,11 @@ function ComparadorContent() {
                 // Carregar modelos da marca
                 const responseModelos = await fetch(`/api/db/marca/${marcaEncontrada.id}`);
                 const dataModelos = await responseModelos.json();
-                setModelos1(dataModelos);
+                // Ordenar modelos alfabeticamente
+                const modelosOrdenados = Array.isArray(dataModelos) 
+                    ? dataModelos.sort((a, b) => a.modelo.localeCompare(b.modelo))
+                    : dataModelos;
+                setModelos1(modelosOrdenados);
                 
                 // Definir modelo selecionado
                 setSelectedModelo1(motoParams.modelo);
@@ -216,7 +220,11 @@ function ComparadorContent() {
                 throw new Error(data.error);
             }
             
-            setModelos1(data);
+            // Ordenar modelos alfabeticamente
+            const modelosOrdenados = Array.isArray(data) 
+                ? data.sort((a, b) => a.modelo.localeCompare(b.modelo))
+                : data;
+            setModelos1(modelosOrdenados);
             // Limpar seleções dependentes
             setSelectedModelo1(null);
             setSelectedAno1('');
@@ -242,7 +250,11 @@ function ComparadorContent() {
                 throw new Error(data.error);
             }
             
-            setModelos2(data);
+            // Ordenar modelos alfabeticamente
+            const modelosOrdenados = Array.isArray(data) 
+                ? data.sort((a, b) => a.modelo.localeCompare(b.modelo))
+                : data;
+            setModelos2(modelosOrdenados);
         } catch (error) {
             console.error('Erro ao carregar modelos:', error);
             setHasError(true);
@@ -271,7 +283,11 @@ function ComparadorContent() {
                 throw new Error(data.error);
             }
             
-            setModelos3(data);
+            // Ordenar modelos alfabeticamente
+            const modelosOrdenados = Array.isArray(data) 
+                ? data.sort((a, b) => a.modelo.localeCompare(b.modelo))
+                : data;
+            setModelos3(modelosOrdenados);
         } catch (error) {
             console.error('Erro ao carregar modelos:', error);
             setHasError(true);
