@@ -252,7 +252,15 @@
     display: flex;
     align-items: center;
     gap: 15px;
-    flex: 5 1;
+    flex: 5;
+}
+
+.comparison-value-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    flex: 1 1 0;
+    min-width: 0;
 }
 
 .comparison-value {
@@ -260,10 +268,17 @@
     font-size: 14px;
     text-align: center;
     flex: 1;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
     padding: 2px 5px;
     border-radius: 3px;
     background-color: #fff;
     border: 1px solid #e0e0e0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    box-sizing: border-box;
 }
 
 .comparison-arrow {
@@ -277,7 +292,8 @@
 
 .moto-names {
     display: flex;
-    justify-content: space-around;
+    align-items: center;
+    gap: 15px;
     margin-bottom: 20px;
     padding: 15px;
     background-color: #f8f9fa;
@@ -285,20 +301,42 @@
     border: 1px solid #e9ecef;
 }
 
+.moto-label-spacer {
+    flex: 1 1;
+    visibility: hidden;
+}
+
+.moto-names-values {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 5;
+}
+
+.moto-name-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.moto-medal-spacer {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    visibility: hidden;
+}
+
 .moto-name {
     text-align: center;
     color: #333;
     font-weight: bold;
     font-size: 16px;
-    flex: 5 1;
+    flex: 1;
+    min-width: 0;
 }
 
-.flex-holder {
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
-    flex: 1 1;
-}
 
 /* Estilos para seção de fotos */
 .motos-fotos-section {

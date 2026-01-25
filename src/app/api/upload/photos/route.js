@@ -65,6 +65,22 @@ export async function POST(request) {
             await mkdir(modeloDir, { recursive: true });
         }
 
+        // Função para sanitizar nome de arquivo (remover caracteres especiais e caminhos)
+        const sanitizeFileName = (fileName) => {
+            // Extrair nome e extensão
+            const ext = path.extname(fileName);
+            const nameWithoutExt = path.basename(fileName, ext);
+            
+            // Sanitizar nome (remover caracteres especiais, manter apenas alfanuméricos, hífen e underscore)
+            const sanitizedName = nameWithoutExt.replace(/[^a-zA-Z0-9_-]/g, '_').trim();
+            
+            // Se o nome ficou vazio, usar um nome padrão
+            const finalName = sanitizedName || 'foto';
+            
+            // Retornar com extensão .jpg (já que convertemos para JPEG)
+            return `${finalName}.jpg`;
+        };
+
         const uploadedFiles = [];
         let successCount = 0;
 
@@ -84,14 +100,23 @@ export async function POST(request) {
                 .jpeg({ quality: 85 })
                 .toBuffer();
 
-            // Gerar nome único para o arquivo
-            const timestamp = Date.now();
-            const randomStr = Math.random().toString(36).substring(2, 15);
-            const filename = `${timestamp}_${randomStr}.jpg`;
+            // Usar o nome original do arquivo (sanitizado) - sobrescreve se já existir
+            const filename = sanitizeFileName(photo.name);
             const filepath = path.join(modeloDir, filename);
+            const fotoPath = `/pictures/${sanitizedMarcaNome}/${sanitizedModelo}/${filename}`;
 
             // Salvar arquivo redimensionado
             await writeFile(filepath, resizedBuffer);
+
+            // Criar ou atualizar entrada na tabela Fotos
+            // Se a foto já existir (mesmo foto_path), apenas atualiza o arquivo físico
+            await dbPool.query(
+                `INSERT INTO motos.Fotos (foto_path, descricao) 
+                 VALUES (?, NULL)
+                 ON DUPLICATE KEY UPDATE foto_path = foto_path`,
+                [fotoPath]
+            );
+
             uploadedFiles.push({
                 originalName: photo.name,
                 savedName: filename,

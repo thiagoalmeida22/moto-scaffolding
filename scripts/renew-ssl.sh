@@ -23,9 +23,10 @@ fi
 certbot renew --quiet
 
 # Verifica se há novos certificados
-DOMAIN=$(ls /etc/letsencrypt/live/ 2>/dev/null | head -n 1)
+# Lista apenas diretórios (ignora arquivos como README)
+DOMAIN=$(find /etc/letsencrypt/live/ -mindepth 1 -maxdepth 1 -type d ! -name README 2>/dev/null | head -n 1 | xargs basename)
 
-if [ -n "$DOMAIN" ]; then
+if [ -n "$DOMAIN" ] && [ -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ] && [ -f "/etc/letsencrypt/live/$DOMAIN/privkey.pem" ]; then
     # Copia certificados atualizados
     cp /etc/letsencrypt/live/$DOMAIN/fullchain.pem nginx/ssl/cert.pem
     cp /etc/letsencrypt/live/$DOMAIN/privkey.pem nginx/ssl/key.pem
@@ -44,7 +45,9 @@ if [ -n "$DOMAIN" ]; then
     docker exec moto-scaffolding-nginx nginx -s reload
     
     echo -e "${GREEN}✅ Certificados SSL atualizados e nginx recarregado!${NC}"
+    echo "   Domínio: $DOMAIN"
 else
-    echo -e "${YELLOW}⚠️  Nenhum certificado encontrado para renovar${NC}"
+    echo -e "${YELLOW}⚠️  Nenhum certificado válido encontrado para renovar${NC}"
+    echo "   Verifique se os certificados existem em /etc/letsencrypt/live/"
 fi
 

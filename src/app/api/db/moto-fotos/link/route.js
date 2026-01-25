@@ -20,35 +20,92 @@ export async function POST(request) {
             );
         }
 
-        // Buscar descrições existentes das fotos antes de remover
-        const placeholders = fotoPaths.map(() => '?').join(',');
-        const [descricoesExistentes] = await dbPool.query(
-            `SELECT foto_path, descricao FROM motos.MotoFotos WHERE foto_path IN (${placeholders})`,
-            fotoPaths
+        // Normalizar caminhos: remover /api se existir
+        const normalizedPaths = fotoPaths.map(path => 
+            path.startsWith('/api/pictures/') 
+                ? path.replace('/api/pictures/', '/pictures/')
+                : path.startsWith('/pictures/')
+                ? path
+                : `/pictures/${path}`
         );
-        
-        const descricoesMap = {};
-        descricoesExistentes.forEach(row => {
-            descricoesMap[row.foto_path] = row.descricao;
+
+        // Primeiro, garantir que todas as fotos existam na tabela Fotos
+        for (const fotoPath of normalizedPaths) {
+            await dbPool.query(
+                `INSERT INTO motos.Fotos (foto_path, descricao) 
+                 VALUES (?, NULL)
+                 ON DUPLICATE KEY UPDATE foto_path = foto_path`,
+                [fotoPath]
+            );
+        }
+
+        // Buscar os IDs das fotos na tabela Fotos
+        let fotos = [];
+        if (normalizedPaths.length > 0) {
+            const placeholders = normalizedPaths.map(() => '?').join(',');
+            const [fotosRows] = await dbPool.query(
+                `SELECT id, foto_path FROM motos.Fotos WHERE foto_path IN (${placeholders})`,
+                normalizedPaths
+            );
+            fotos = fotosRows;
+        }
+
+        // Criar mapa de foto_path -> foto_id
+        const fotoIdMap = {};
+        fotos.forEach(foto => {
+            fotoIdMap[foto.foto_path] = foto.id;
         });
 
-        // Remover fotos existentes da moto
-        await dbPool.query(
-            'DELETE FROM motos.MotoFotos WHERE moto_id = ?',
+        // Buscar fotos atualmente vinculadas à moto
+        const [fotosExistentes] = await dbPool.query(
+            'SELECT foto_id, ordem FROM motos.MotoFotos WHERE moto_id = ?',
             [motoId]
         );
 
-        // Inserir novas fotos preservando descrições existentes
-        if (fotoPaths.length > 0) {
-            const values = fotoPaths.map((fotoPath, index) => [
-                motoId, 
-                fotoPath, 
-                index, 
-                descricoesMap[fotoPath] || null
-            ]);
+        // Criar mapa de foto_id -> ordem atual
+        const ordemAtualMap = {};
+        fotosExistentes.forEach(foto => {
+            ordemAtualMap[foto.foto_id] = foto.ordem;
+        });
+
+        // Processar cada foto na nova ordem
+        const fotoIds = normalizedPaths.map(path => fotoIdMap[path]).filter(id => id !== undefined);
+        
+        // Atualizar ordem das fotos existentes e inserir novas
+        for (let index = 0; index < fotoIds.length; index++) {
+            const fotoId = fotoIds[index];
+            const ordemAtual = ordemAtualMap[fotoId];
+
+            if (ordemAtual !== undefined) {
+                // Foto já existe: apenas atualizar a ordem
+                if (ordemAtual !== index) {
+                    await dbPool.query(
+                        'UPDATE motos.MotoFotos SET ordem = ? WHERE moto_id = ? AND foto_id = ?',
+                        [index, motoId, fotoId]
+                    );
+                }
+            } else {
+                // Foto não existe: inserir nova
+                await dbPool.query(
+                    'INSERT INTO motos.MotoFotos (moto_id, foto_id, ordem) VALUES (?, ?, ?)',
+                    [motoId, fotoId, index]
+                );
+            }
+        }
+
+        // Remover fotos que não estão mais na lista
+        if (fotoIds.length > 0) {
+            const fotoIdsPlaceholders = fotoIds.map(() => '?').join(',');
             await dbPool.query(
-                'INSERT INTO motos.MotoFotos (moto_id, foto_path, ordem, descricao) VALUES ?',
-                [values]
+                `DELETE FROM motos.MotoFotos 
+                 WHERE moto_id = ? AND foto_id NOT IN (${fotoIdsPlaceholders})`,
+                [motoId, ...fotoIds]
+            );
+        } else {
+            // Se não há fotos, remover todas
+            await dbPool.query(
+                'DELETE FROM motos.MotoFotos WHERE moto_id = ?',
+                [motoId]
             );
         }
 

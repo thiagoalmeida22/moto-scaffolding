@@ -13,15 +13,27 @@ export async function GET(request) {
             );
         }
 
-        // Buscar fotos da moto ordenadas por ordem
+        // Buscar fotos da moto ordenadas por ordem (com JOIN na tabela Fotos)
         const [fotos] = await dbPool.query(
-            'SELECT foto_path, ordem FROM motos.MotoFotos WHERE moto_id = ? ORDER BY ordem ASC',
+            `SELECT f.foto_path, mf.ordem 
+             FROM motos.MotoFotos mf
+             INNER JOIN motos.Fotos f ON mf.foto_id = f.id
+             WHERE mf.moto_id = ? 
+             ORDER BY mf.ordem ASC`,
             [motoId]
         );
 
+        // Converter caminhos do banco (/pictures/...) para formato da API (/api/pictures/...)
+        const fotosFormatadas = fotos.map(foto => ({
+            foto_path: foto.foto_path.startsWith('/pictures/')
+                ? foto.foto_path.replace('/pictures/', '/api/pictures/')
+                : foto.foto_path,
+            ordem: foto.ordem
+        }));
+
         return NextResponse.json({
             success: true,
-            fotos: fotos || []
+            fotos: fotosFormatadas || []
         });
 
     } catch (error) {
