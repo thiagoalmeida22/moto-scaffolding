@@ -11,6 +11,7 @@ export async function POST(request) {
         const marca = formData.get('marca');
         const modelo = formData.get('modelo');
         const photos = formData.getAll('photos');
+        const ignoreMysqlInsert = formData.get('IGNORE_MYSQL_INSERT') === 'true';
 
         if (!marca || !modelo) {
             return NextResponse.json(
@@ -108,14 +109,16 @@ export async function POST(request) {
             // Salvar arquivo redimensionado
             await writeFile(filepath, resizedBuffer);
 
-            // Criar ou atualizar entrada na tabela Fotos
-            // Se a foto já existir (mesmo foto_path), apenas atualiza o arquivo físico
-            await dbPool.query(
-                `INSERT INTO motos.Fotos (foto_path, descricao) 
-                 VALUES (?, NULL)
-                 ON DUPLICATE KEY UPDATE foto_path = foto_path`,
-                [fotoPath]
-            );
+            // Criar ou atualizar entrada na tabela Fotos apenas se IGNORE_MYSQL_INSERT não estiver ativado
+            if (!ignoreMysqlInsert) {
+                // Se a foto já existir (mesmo foto_path), apenas atualiza o arquivo físico
+                await dbPool.query(
+                    `INSERT INTO motos.Fotos (foto_path, descricao) 
+                     VALUES (?, NULL)
+                     ON DUPLICATE KEY UPDATE foto_path = foto_path`,
+                    [fotoPath]
+                );
+            }
 
             uploadedFiles.push({
                 originalName: photo.name,
