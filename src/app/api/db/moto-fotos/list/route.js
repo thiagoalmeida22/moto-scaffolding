@@ -49,9 +49,9 @@ export async function GET(request) {
             const files = await readdir(fotoDir);
             const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
             
-            // Buscar todas as descrições das fotos deste modelo na tabela MotoFotos
+            // Buscar todas as descrições das fotos deste modelo na tabela Fotos
             const [descricoes] = await dbPool.query(
-                `SELECT foto_path, descricao FROM motos.MotoFotos 
+                `SELECT foto_path, descricao FROM motos.Fotos 
                  WHERE foto_path LIKE ?`,
                 [`%/pictures/${sanitizedMarcaNome}/${sanitizedModelo}/%`]
             );

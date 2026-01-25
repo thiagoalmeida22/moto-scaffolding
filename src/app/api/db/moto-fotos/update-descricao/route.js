@@ -21,13 +21,20 @@ export async function PUT(request) {
             );
         }
 
-        // Usar INSERT ... ON DUPLICATE KEY UPDATE para inserir ou atualizar
-        // Permite salvar descrição mesmo sem moto_id associado
+        // Normalizar caminho: remover /api se existir
+        const normalizedPath = foto_path.startsWith('/api/pictures/') 
+            ? foto_path.replace('/api/pictures/', '/pictures/')
+            : foto_path.startsWith('/pictures/')
+            ? foto_path
+            : `/pictures/${foto_path}`;
+
+        // Atualizar descrição na tabela Fotos
+        // Se a foto não existir, criar uma entrada sem descrição
         await dbPool.query(
-            `INSERT INTO motos.MotoFotos (foto_path, descricao) 
-             VALUES (?, ?) 
+            `INSERT INTO motos.Fotos (foto_path, descricao) 
+             VALUES (?, ?)
              ON DUPLICATE KEY UPDATE descricao = VALUES(descricao)`,
-            [foto_path, descricao || null]
+            [normalizedPath, descricao || null]
         );
 
         return NextResponse.json({

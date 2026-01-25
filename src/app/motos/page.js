@@ -62,7 +62,11 @@ function MotosPage() {
         try {
             const response = await fetch(`/api/db/marca/${marcaId}`);
             const data = await response.json();
-            setModelos(data);
+            // Ordenar modelos alfabeticamente
+            const modelosOrdenados = Array.isArray(data) 
+                ? data.sort((a, b) => a.modelo.localeCompare(b.modelo))
+                : data;
+            setModelos(modelosOrdenados);
         } catch (error) {
             console.error('Error fetching modelos:', error);
         }

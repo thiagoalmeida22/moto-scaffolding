@@ -36,14 +36,18 @@ export async function DELETE(request) {
             console.warn(`Arquivo não encontrado: ${filePath}`);
         }
 
-        // Remover todas as referências dessa foto no banco de dados
-        // Usar o nome do arquivo para garantir que todas as referências sejam removidas
-        const fileName = path.basename(fotoPath);
+        // Converter fotoPath para o formato do banco (/pictures/...)
+        let dbFotoPath = fotoPath;
+        if (fotoPath.startsWith('/api/pictures/')) {
+            dbFotoPath = fotoPath.replace('/api', '');
+        } else if (!fotoPath.startsWith('/pictures/')) {
+            dbFotoPath = `/pictures/${fotoPath}`;
+        }
         
-        // Deletar todas as entradas que terminam com o nome do arquivo
+        // Deletar da tabela Fotos (cascata vai remover de MotoFotos automaticamente)
         await dbPool.query(
-            'DELETE FROM motos.MotoFotos WHERE foto_path LIKE ?',
-            [`%${fileName}`]
+            'DELETE FROM motos.Fotos WHERE foto_path = ?',
+            [dbFotoPath]
         );
 
         return NextResponse.json({

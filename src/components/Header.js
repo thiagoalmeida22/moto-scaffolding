@@ -20,7 +20,7 @@ export default function Header() {
             <nav className={styles.nav}>
                 <Link href="/" className={styles.logo}>
                     <Image
-                        src="/MotoInfo-New-Logo.png"
+                        src="/logo-azul-menor.png"
                         alt="Motoinfo Logo"
                         width={150}
                         height={125}

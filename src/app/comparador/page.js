@@ -604,18 +604,29 @@ function ComparadorContent() {
                 <div className="comparison-display">
                     {/* Moto Names */}
                     <div className="moto-names">
-                        <div className="flex-holder"></div>
-                        <div className="moto-name">
-                            {selectedMoto1['Especificacoes']['Marca']} {selectedMoto1['Especificacoes']['Modelo']} - {selectedMoto1['Especificacoes']['Ano']}
-                        </div>
-                        <div className="moto-name">
-                            {selectedMoto2['Especificacoes']['Marca']} {selectedMoto2['Especificacoes']['Modelo']} - {selectedMoto2['Especificacoes']['Ano']}
-                        </div>
-                        {selectedMoto3 && (
-                            <div className="moto-name">
-                                {selectedMoto3['Especificacoes']['Marca']} {selectedMoto3['Especificacoes']['Modelo']} - {selectedMoto3['Especificacoes']['Ano']}
+                        <div className="moto-label-spacer"></div>
+                        <div className="moto-names-values">
+                            <div className="moto-name-wrapper">
+                                <div className="moto-medal-spacer"></div>
+                                <div className="moto-name">
+                                    {selectedMoto1['Especificacoes']['Marca']} {selectedMoto1['Especificacoes']['Modelo']} - {selectedMoto1['Especificacoes']['Ano']}
+                                </div>
                             </div>
-                        )}
+                            <div className="moto-name-wrapper">
+                                <div className="moto-medal-spacer"></div>
+                                <div className="moto-name">
+                                    {selectedMoto2['Especificacoes']['Marca']} {selectedMoto2['Especificacoes']['Modelo']} - {selectedMoto2['Especificacoes']['Ano']}
+                                </div>
+                            </div>
+                            {selectedMoto3 && (
+                                <div className="moto-name-wrapper">
+                                    <div className="moto-medal-spacer"></div>
+                                    <div className="moto-name">
+                                        {selectedMoto3['Especificacoes']['Marca']} {selectedMoto3['Especificacoes']['Modelo']} - {selectedMoto3['Especificacoes']['Ano']}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Data Display */}
