@@ -28,8 +28,8 @@ export default function Header() {
                     />
                 </Link>
                 <div className={styles.links}>
-                    <Link href="/comparador">Comparador</Link>
                     <Link href="/motos">Motos</Link>
+                    <Link href="/comparador">Comparador</Link>
                 </div>
             </nav>
         </header>

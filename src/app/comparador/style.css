@@ -1,3 +1,7 @@
+.hidden {
+    display: none;
+}
+
 .comparador-container {
     max-width: 1400px;
     margin: 0 auto;

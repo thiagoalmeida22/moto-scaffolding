@@ -92,7 +92,7 @@ const comparisonCallbacks = {
     },
     
     // Desempenho
-    'Velocidade Máxima': (...args) => {
+    'Velocidade Máx. (Aprox. Painel)': (...args) => {
         const values = args.filter(v => v != null).map(v => parseFloat(v) || 0);
         return values.sort((a, b) => b - a); // Decrescente
     },
@@ -241,8 +241,13 @@ const ComparisonBlock = ({
                     const value2 = data2[key];
                     const value3 = data3?.[key];
                     
-                    // Não renderizar se todos os 3 valores forem null
-                    if ((value1 === null || value1 === '') && value1 === value2 && value1 === value3) {
+                    // Função auxiliar para verificar se um valor é vazio (null, undefined ou string vazia)
+                    const isEmpty = (val) => val === null || val === undefined || val === '';
+                    
+                    // Não renderizar se todos os valores forem vazios
+                    const allEmpty = isEmpty(value1) && isEmpty(value2) && (value3 === undefined || isEmpty(value3));
+                    
+                    if (allEmpty) {
                         return null;
                     }
                     
@@ -268,7 +273,7 @@ const ComparisonBlock = ({
                                     ) : (
                                         <div style={{ width: '30px', height: '30px', flexShrink: 0 }}></div>
                                     )}
-                                    <span className="comparison-value">
+                                    <span className={`comparison-value ${isEmpty(value1) ? 'hidden' : ''}`}>
                                         <MotoSpecValue
                                             data={data1}
                                             group={title}
@@ -289,7 +294,7 @@ const ComparisonBlock = ({
                                     ) : (
                                         <div style={{ width: '30px', height: '30px', flexShrink: 0 }}></div>
                                     )}
-                                    <span className="comparison-value">
+                                    <span className={`comparison-value ${isEmpty(value2) ? 'hidden' : ''}`}>
                                         <MotoSpecValue
                                             data={data2}
                                             group={title}
@@ -311,7 +316,7 @@ const ComparisonBlock = ({
                                         ) : (
                                             <div style={{ width: '30px', height: '30px', flexShrink: 0 }}></div>
                                         )}
-                                        <span className="comparison-value">
+                                        <span className={`comparison-value ${isEmpty(value3) ? 'hidden' : ''}`}>
                                             <MotoSpecValue
                                                 data={data3}
                                                 group={title}

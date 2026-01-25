@@ -1100,7 +1100,7 @@ const AdminDashboard = () => {
                             </div>
                             <div className="form-input__div">
                                 <label className="form-input__label" htmlFor="vel_max">
-                                    Velocidade Máxima: <span className="form-input__label-format">(km/h)</span>
+                                Velocidade Máx. (Aprox. Painel): <span className="form-input__label-format">(km/h)</span>
                                 </label>
                                 <input
                                     className="form__input"
