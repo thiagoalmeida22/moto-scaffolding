@@ -28,6 +28,9 @@ const AdminDashboard = () => {
     const [uploadedFiles, setUploadedFiles] = useState([]);
     const [fotosListadas, setFotosListadas] = useState([]);
     const [isLoadingFotosList, setIsLoadingFotosList] = useState(false);
+    const [ignoreMysqlInsert, setIgnoreMysqlInsert] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [pendingUploadFiles, setPendingUploadFiles] = useState(null);
     
     // Estados para linkagem de fotos à moto
     const [availableFotos, setAvailableFotos] = useState([]);
@@ -533,7 +536,7 @@ const AdminDashboard = () => {
         await uploadFiles(files);
     };
 
-    const uploadFiles = async (files) => {
+    const uploadFiles = async (files, skipModal = false) => {
         if (!fotoMarca || fotoMarca === '0' || !fotoModelo) {
             alert('Por favor, selecione uma Marca e um Modelo antes de fazer upload.');
             return;
@@ -546,9 +549,25 @@ const AdminDashboard = () => {
             return;
         }
 
+        // Se ignoreMysqlInsert está ativado e ainda não passou pelo modal, mostrar modal
+        if (ignoreMysqlInsert && !skipModal) {
+            setPendingUploadFiles(imageFiles);
+            setShowConfirmModal(true);
+            return;
+        }
+
+        // Prosseguir com o upload
+        await performUpload(imageFiles);
+    };
+
+    const performUpload = async (imageFiles) => {
         const formData = new FormData();
         formData.append('marca', fotoMarca);
         formData.append('modelo', fotoModelo);
+        
+        if (ignoreMysqlInsert) {
+            formData.append('IGNORE_MYSQL_INSERT', 'true');
+        }
         
         imageFiles.forEach((file, index) => {
             formData.append(`photos`, file);
@@ -574,6 +593,19 @@ const AdminDashboard = () => {
             console.error('Erro ao fazer upload:', error);
             alert('Erro ao fazer upload das fotos.');
         }
+    };
+
+    const handleConfirmModalYes = async () => {
+        setShowConfirmModal(false);
+        if (pendingUploadFiles) {
+            await performUpload(pendingUploadFiles);
+            setPendingUploadFiles(null);
+        }
+    };
+
+    const handleConfirmModalNo = () => {
+        setShowConfirmModal(false);
+        setPendingUploadFiles(null);
     };
 
     return (
@@ -1480,6 +1512,26 @@ const AdminDashboard = () => {
                                 </select>
                             </div>
 
+                            {/* Checkbox para ignorar inserção no MySQL */}
+                            <div style={{ marginBottom: '20px', padding: '10px', border: '2px solid #dc3545', borderRadius: '4px', backgroundColor: '#fff5f5' }}>
+                                <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={ignoreMysqlInsert}
+                                        onChange={(e) => setIgnoreMysqlInsert(e.target.checked)}
+                                        style={{ marginRight: '8px', width: '18px', height: '18px', cursor: 'pointer' }}
+                                    />
+                                    <span style={{ fontSize: '14px', color: '#dc3545', fontWeight: '500' }}>
+                                        Ignorar inserção no banco de dados (apenas upload de arquivos)
+                                    </span>
+                                </label>
+                                <div style={{ marginTop: '8px', padding: '8px', backgroundColor: '#fee', borderLeft: '4px solid #dc3545', borderRadius: '4px' }}>
+                                    <span style={{ fontSize: '13px', color: '#dc3545', fontWeight: '600' }}>
+                                        ⚠️ AVISO: Esta opção irá fazer upload apenas dos arquivos, sem criar entradas no banco de dados. Isso pode causar erros na aplicação. Uso apenas para caso de recriar a tabela a partir de migration.
+                                    </span>
+                                </div>
+                            </div>
+
                             {/* Área de Upload */}
                             {(fotoMarca && fotoMarca !== '0' && fotoModelo) && (
                                 <div
@@ -1642,6 +1694,73 @@ const AdminDashboard = () => {
                     )}
                 </div>
             </div>
+
+            {/* Modal de Confirmação */}
+            {showConfirmModal && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1000
+                }}>
+                    <div style={{
+                        backgroundColor: 'white',
+                        padding: '30px',
+                        borderRadius: '8px',
+                        maxWidth: '500px',
+                        width: '90%',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#d53829' }}>
+                            ⚠️ Atenção
+                        </h3>
+                        <p style={{ marginBottom: '20px', fontSize: '16px', lineHeight: '1.5', color: '#333' }}>
+                            ESSA OPÇÃO IRÁ UPLOADAR FOTOS PARA AS PASTAS, MAS SEM CRIAR UMA ENTRADA NO BANCO (PODE CAUSAR ERROS)
+                        </p>
+                        <p style={{ marginBottom: '25px', fontSize: '14px', color: '#666' }}>
+                            Deseja continuar?
+                        </p>
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                            <button
+                                onClick={handleConfirmModalNo}
+                                style={{
+                                    padding: '10px 20px',
+                                    backgroundColor: '#6c757d',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    fontSize: '14px',
+                                    fontWeight: '500'
+                                }}
+                            >
+                                NÃO
+                            </button>
+                            <button
+                                onClick={handleConfirmModalYes}
+                                style={{
+                                    padding: '10px 20px',
+                                    backgroundColor: '#d53829',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    fontSize: '14px',
+                                    fontWeight: '500'
+                                }}
+                            >
+                                SIM
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div >
     );
 };
