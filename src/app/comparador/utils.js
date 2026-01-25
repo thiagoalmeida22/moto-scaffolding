@@ -26,12 +26,12 @@ export const unit_medida = {
     },
     'Freio': {
         'Tipo': '',
-        'Dianteiro': 'cm',
-        'Traseiro': 'cm'
+        'Dianteiro': '',
+        'Traseiro': ''
     },
     'Pneu': {
-        'Dianteiro': 'cm',
-        'Traseiro': 'cm'
+        'Dianteiro': '',
+        'Traseiro': ''
     },
     'Dimensoes': {
         'Tipo de Chassi': '',
@@ -44,7 +44,7 @@ export const unit_medida = {
         'Capacidade de Carga': 'kg',
     },
     'Desempenho': {
-        'Velocidade Máxima': 'km/h',
+        'Velocidade Máx. (Aprox. Painel)': 'km/h',
         'Aceleração 0-100': 's',
     },
     'Combustível': {
@@ -53,5 +53,6 @@ export const unit_medida = {
         'Consumo (Alcool)': 'km/l',
         'Autonomia (Gasolina)': 'km',
         'Autonomia (Alcool)': 'km',
+        'Tanque': 'L',
     },
 }

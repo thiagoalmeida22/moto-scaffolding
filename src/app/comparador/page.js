@@ -255,6 +255,9 @@ function ComparadorContent() {
                 ? data.sort((a, b) => a.modelo.localeCompare(b.modelo))
                 : data;
             setModelos2(modelosOrdenados);
+            // Limpar seleções dependentes
+            setSelectedModelo2(null);
+            setSelectedMoto2(null);
         } catch (error) {
             console.error('Erro ao carregar modelos:', error);
             setHasError(true);
@@ -288,6 +291,9 @@ function ComparadorContent() {
                 ? data.sort((a, b) => a.modelo.localeCompare(b.modelo))
                 : data;
             setModelos3(modelosOrdenados);
+            // Limpar seleções dependentes
+            setSelectedModelo3(null);
+            setSelectedMoto3(null);
         } catch (error) {
             console.error('Erro ao carregar modelos:', error);
             setHasError(true);
@@ -341,6 +347,8 @@ function ComparadorContent() {
             
             setSelectedModelo2(selectedModelo);
             setAnos2(data);
+            // Limpar moto selecionada
+            setSelectedMoto2(null);
         } catch (error) {
             console.error('Erro ao carregar anos:', error);
             setHasError(true);
@@ -366,6 +374,8 @@ function ComparadorContent() {
             
             setSelectedModelo3(selectedModelo);
             setAnos3(data);
+            // Limpar moto selecionada
+            setSelectedMoto3(null);
         } catch (error) {
             console.error('Erro ao carregar anos:', error);
             setHasError(true);
@@ -600,7 +610,7 @@ function ComparadorContent() {
             </div>
 
                 {/* Comparison Display */}
-                {numSelectedMotos >= 2 && (
+                {selectedMoto1 && selectedMoto2 && (
                 <div className="comparison-display">
                     {/* Moto Names */}
                     <div className="moto-names">

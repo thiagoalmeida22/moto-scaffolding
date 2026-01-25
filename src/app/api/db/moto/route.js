@@ -65,7 +65,7 @@ export async function GET(request, { params }) {
                 'Capacidade de Carga': results[0].cap_carga,
             },
             'Desempenho': {
-                'Velocidade Máxima': results[0].vel_max,
+                'Velocidade Máx. (Aprox. Painel)': results[0].vel_max,
                 'Aceleração 0-100': results[0].acel_100,
             },
             'Combustível': {

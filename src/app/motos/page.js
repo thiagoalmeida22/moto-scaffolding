@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import MotoSpecValue from '../comparador/components/MotoSpecValue';
 import './style.css';
 
 function MotosPage() {
@@ -131,7 +132,13 @@ function MotosPage() {
                     {rows.map(([key, value]) => (
                         <div key={key} className="data-row">
                             <span className="data-label">{key}:</span>
-                            <span className="data-value">{value || '-'}</span>
+                            <span className="data-value">
+                                <MotoSpecValue
+                                    data={data}
+                                    group={title}
+                                    chave={key}
+                                />
+                            </span>
                         </div>
                     ))}
                     {/* Fill empty rows if needed */}
@@ -220,30 +227,16 @@ function MotosPage() {
             {/* Data Display */}
             {motoData && (
                 <div className="data-display">
-                    <div className="data-row-container">
-                        {renderDataBlock('Especificações', motoData.Especificacoes, 6)}
-                        {renderDataBlock('Motor', motoData.Motor, 9)}
-                    </div>
-                    
-                    <div className="data-row-container">
-                        {renderDataBlock('Transmissão', motoData.Transmissão, 6)}
-                        {renderDataBlock('Suspensão', motoData.Suspensão, 6)}
-                    </div>
-                    
-                    <div className="data-row-container">
-                        {renderDataBlock('Freio', motoData.Freio, 6)}
-                        {renderDataBlock('Pneu', motoData.Pneu, 6)}
-                    </div>
-                    
-                    <div className="data-row-container">
-                        {renderDataBlock('Dimensões', motoData.Dimensoes, 8)}
-                        {renderDataBlock('Desempenho', motoData.Desempenho, 8)}
-                    </div>
-                    
-                    <div className="data-row-container">
-                        {renderDataBlock('Combustível', motoData.Combustível, 6)}
-                        {renderDataBlock('Extras', motoData.Extras, 6)}
-                    </div>
+                    {renderDataBlock('Especificacoes', motoData.Especificacoes, 6)}
+                    {renderDataBlock('Motor', motoData.Motor, 9)}
+                    {renderDataBlock('Transmissão', motoData.Transmissão, 6)}
+                    {renderDataBlock('Suspensão', motoData.Suspensão, 6)}
+                    {renderDataBlock('Freio', motoData.Freio, 6)}
+                    {renderDataBlock('Pneu', motoData.Pneu, 6)}
+                    {renderDataBlock('Dimensoes', motoData.Dimensoes, 8)}
+                    {renderDataBlock('Desempenho', motoData.Desempenho, 8)}
+                    {renderDataBlock('Combustível', motoData.Combustível, 6)}
+                    {renderDataBlock('Extras', motoData.Extras, 6)}
                 </div>
             )}
         </div>
