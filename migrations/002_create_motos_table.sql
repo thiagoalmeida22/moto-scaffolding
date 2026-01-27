@@ -1,7 +1,7 @@
 CREATE DATABASE IF NOT EXISTS motos;
 USE motos;
 
-CREATE TABLE Motos (
+CREATE TABLE motos (
     id INT NOT NULL AUTO_INCREMENT,
     modelo VARCHAR(50),
     marca INT,
@@ -45,6 +45,6 @@ CREATE TABLE Motos (
     tanque FLOAT,
     aditional TEXT,
     PRIMARY KEY (id),
-    CONSTRAINT fk_moto_marca FOREIGN KEY (marca) REFERENCES Marcas(id),
+    CONSTRAINT fk_moto_marca FOREIGN KEY (marca) REFERENCES marcas(id),
     UNIQUE KEY idx_modelo_ano (modelo, ano)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -4,7 +4,7 @@ export async function POST(request) {
     const { marca } = await request.json();
     try {
         const [results, fields] = await dbPool.query(`
-            INSERT INTO Marcas (nome) 
+            INSERT INTO marcas (nome) 
             VALUES (?);
             `,
             [marca]);

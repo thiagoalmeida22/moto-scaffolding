@@ -29,7 +29,7 @@ export async function POST(request) {
 
         // Buscar o nome da marca do banco de dados
         const [marcaResults] = await dbPool.query(
-            'SELECT nome FROM motos.Marcas WHERE id = ?',
+            'SELECT nome FROM motos.marcas WHERE id = ?',
             [marca]
         );
         
@@ -113,7 +113,7 @@ export async function POST(request) {
             if (!ignoreMysqlInsert) {
                 // Se a foto já existir (mesmo foto_path), apenas atualiza o arquivo físico
                 await dbPool.query(
-                    `INSERT INTO motos.Fotos (foto_path, descricao) 
+                    `INSERT INTO motos.fotos (foto_path, descricao) 
                      VALUES (?, NULL)
                      ON DUPLICATE KEY UPDATE foto_path = foto_path`,
                     [fotoPath]

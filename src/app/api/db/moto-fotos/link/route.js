@@ -32,7 +32,7 @@ export async function POST(request) {
         // Primeiro, garantir que todas as fotos existam na tabela Fotos
         for (const fotoPath of normalizedPaths) {
             await dbPool.query(
-                `INSERT INTO motos.Fotos (foto_path, descricao) 
+                `INSERT INTO motos.fotos (foto_path, descricao) 
                  VALUES (?, NULL)
                  ON DUPLICATE KEY UPDATE foto_path = foto_path`,
                 [fotoPath]
@@ -44,7 +44,7 @@ export async function POST(request) {
         if (normalizedPaths.length > 0) {
             const placeholders = normalizedPaths.map(() => '?').join(',');
             const [fotosRows] = await dbPool.query(
-                `SELECT id, foto_path FROM motos.Fotos WHERE foto_path IN (${placeholders})`,
+                `SELECT id, foto_path FROM motos.fotos WHERE foto_path IN (${placeholders})`,
                 normalizedPaths
             );
             fotos = fotosRows;
@@ -58,7 +58,7 @@ export async function POST(request) {
 
         // Buscar fotos atualmente vinculadas à moto
         const [fotosExistentes] = await dbPool.query(
-            'SELECT foto_id, ordem FROM motos.MotoFotos WHERE moto_id = ?',
+            'SELECT foto_id, ordem FROM motos.motofotos WHERE moto_id = ?',
             [motoId]
         );
 
@@ -80,14 +80,14 @@ export async function POST(request) {
                 // Foto já existe: apenas atualizar a ordem
                 if (ordemAtual !== index) {
                     await dbPool.query(
-                        'UPDATE motos.MotoFotos SET ordem = ? WHERE moto_id = ? AND foto_id = ?',
+                        'UPDATE motos.motofotos SET ordem = ? WHERE moto_id = ? AND foto_id = ?',
                         [index, motoId, fotoId]
                     );
                 }
             } else {
                 // Foto não existe: inserir nova
                 await dbPool.query(
-                    'INSERT INTO motos.MotoFotos (moto_id, foto_id, ordem) VALUES (?, ?, ?)',
+                    'INSERT INTO motos.motofotos (moto_id, foto_id, ordem) VALUES (?, ?, ?)',
                     [motoId, fotoId, index]
                 );
             }
@@ -97,14 +97,14 @@ export async function POST(request) {
         if (fotoIds.length > 0) {
             const fotoIdsPlaceholders = fotoIds.map(() => '?').join(',');
             await dbPool.query(
-                `DELETE FROM motos.MotoFotos 
+                `DELETE FROM motos.motofotos 
                  WHERE moto_id = ? AND foto_id NOT IN (${fotoIdsPlaceholders})`,
                 [motoId, ...fotoIds]
             );
         } else {
             // Se não há fotos, remover todas
             await dbPool.query(
-                'DELETE FROM motos.MotoFotos WHERE moto_id = ?',
+                'DELETE FROM motos.motofotos WHERE moto_id = ?',
                 [motoId]
             );
         }

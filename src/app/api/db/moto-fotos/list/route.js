@@ -19,7 +19,7 @@ export async function GET(request) {
 
         // Buscar o nome da marca
         const [marcaResults] = await dbPool.query(
-            'SELECT nome FROM motos.Marcas WHERE id = ?',
+            'SELECT nome FROM motos.marcas WHERE id = ?',
             [marcaId]
         );
 
@@ -51,7 +51,7 @@ export async function GET(request) {
             
             // Buscar todas as descrições das fotos deste modelo na tabela Fotos
             const [descricoes] = await dbPool.query(
-                `SELECT foto_path, descricao FROM motos.Fotos 
+                `SELECT foto_path, descricao FROM motos.fotos 
                  WHERE foto_path LIKE ?`,
                 [`%/pictures/${sanitizedMarcaNome}/${sanitizedModelo}/%`]
             );

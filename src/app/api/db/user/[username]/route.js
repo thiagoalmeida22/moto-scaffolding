@@ -7,7 +7,7 @@ export async function GET(request, { params }) {
     try {
         const [results, fields] = await dbPool.query(`
             SELECT *
-            FROM motos.Users 
+            FROM motos.users 
             WHERE \`user\` = ? LIMIT 1;
             `,
             [username]
