@@ -1,4 +1,4 @@
-INSERT INTO Marcas (nome) VALUES 
+INSERT INTO marcas (nome) VALUES 
 ('Honda'),
 ('Yamaha'),
 ('Bajaj'),

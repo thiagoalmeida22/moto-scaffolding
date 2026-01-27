@@ -5,7 +5,7 @@ export async function GET(request, { params }) {
     try {
         const [results, fields] = await dbPool.query(`
             SELECT DISTINCT ano
-            FROM motos.Motos WHERE \`modelo\` = ?;
+            FROM motos.motos WHERE \`modelo\` = ?;
             `,
             [modelo]);
         return Response.json(results);

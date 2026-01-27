@@ -1,7 +1,7 @@
 CREATE DATABASE IF NOT EXISTS motos;
 USE motos;
 
-CREATE TABLE Marcas (
+CREATE TABLE marcas (
     id INT NOT NULL AUTO_INCREMENT,
     nome VARCHAR(50),
     PRIMARY KEY (id)

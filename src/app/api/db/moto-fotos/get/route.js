@@ -16,8 +16,8 @@ export async function GET(request) {
         // Buscar fotos da moto ordenadas por ordem (com JOIN na tabela Fotos)
         const [fotos] = await dbPool.query(
             `SELECT f.foto_path, mf.ordem 
-             FROM motos.MotoFotos mf
-             INNER JOIN motos.Fotos f ON mf.foto_id = f.id
+             FROM motos.motofotos mf
+             INNER JOIN motos.fotos f ON mf.foto_id = f.id
              WHERE mf.moto_id = ? 
              ORDER BY mf.ordem ASC`,
             [motoId]

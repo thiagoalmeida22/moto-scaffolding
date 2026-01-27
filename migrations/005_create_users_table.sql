@@ -1,7 +1,7 @@
 CREATE DATABASE IF NOT EXISTS motos;
 USE motos;
 
-CREATE TABLE Users (
+CREATE TABLE users (
     id INT NOT NULL AUTO_INCREMENT,
     user VARCHAR(50) NOT NULL,
     role INT,

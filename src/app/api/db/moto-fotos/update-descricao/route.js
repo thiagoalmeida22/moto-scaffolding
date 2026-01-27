@@ -31,7 +31,7 @@ export async function PUT(request) {
         // Atualizar descrição na tabela Fotos
         // Se a foto não existir, criar uma entrada sem descrição
         await dbPool.query(
-            `INSERT INTO motos.Fotos (foto_path, descricao) 
+            `INSERT INTO motos.fotos (foto_path, descricao) 
              VALUES (?, ?)
              ON DUPLICATE KEY UPDATE descricao = VALUES(descricao)`,
             [normalizedPath, descricao || null]

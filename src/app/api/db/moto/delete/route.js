@@ -4,7 +4,7 @@ import dbPool from '@/utils/database.js'
 export async function POST(request) {
     const motoForm = await request.json();
     try {
-        const sql = `DELETE FROM motos WHERE id = ?;`;
+        const sql = `DELETE FROM motos.motos WHERE id = ?;`;
         const values = [motoForm.id];
 
         const [results] = await dbPool.query(sql, values);

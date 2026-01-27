@@ -46,7 +46,7 @@ export async function DELETE(request) {
         
         // Deletar da tabela Fotos (cascata vai remover de MotoFotos automaticamente)
         await dbPool.query(
-            'DELETE FROM motos.Fotos WHERE foto_path = ?',
+            'DELETE FROM motos.fotos WHERE foto_path = ?',
             [dbFotoPath]
         );
 
