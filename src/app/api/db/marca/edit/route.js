@@ -5,7 +5,7 @@ export async function PUT(request) {
     console.log(id, marca);
     try {
         const [results, fields] = await dbPool.query(`
-            UPDATE marcas 
+            UPDATE motos.marcas 
             SET nome = ? 
             WHERE id = ?;
             `,

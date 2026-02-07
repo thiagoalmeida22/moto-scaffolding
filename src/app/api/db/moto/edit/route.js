@@ -6,7 +6,7 @@ export async function PUT(request) {
     console.log(motoForm.marca);
     try {
         const sql = `
-            UPDATE motos SET modelo= ?, marca= ?, ano= ?, categoria= ?, preco_fipe= ?, tipo_motor= ?, cilindrada= ?, potencia_A= ?,
+            UPDATE motos.motos SET modelo= ?, marca= ?, ano= ?, categoria= ?, preco_fipe= ?, tipo_motor= ?, cilindrada= ?, potencia_A= ?,
             potencia_G= ?, torque_A= ?, torque_G= ?, partida= ?, refrigeracao= ?, cambio= ?, embreagem= ?, suspensao_d= ?,
             suspensao_t= ?, tipo_freio= ?, freio_d= ?, freio_t= ?, pneu_d= ?, pneu_t= ?, chassi= ?, alt_assento= ?, altura= ?,
             comprimento= ?, largura= ?, dist_eixos= ?, peso= ?, cap_carga= ?, vel_max= ?, acel_100= ?, combustivel=?,consumo_A= ?,
