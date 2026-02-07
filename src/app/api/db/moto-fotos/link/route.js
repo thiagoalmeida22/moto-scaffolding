@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import dbPool from '@/utils/database.js';
+import { normalizeNumeric } from '@/utils/valueHelpers.js';
 
 export async function POST(request) {
     try {
@@ -59,7 +60,7 @@ export async function POST(request) {
         // Buscar fotos atualmente vinculadas à moto
         const [fotosExistentes] = await dbPool.query(
             'SELECT foto_id, ordem FROM motos.motofotos WHERE moto_id = ?',
-            [motoId]
+            [normalizeNumeric(motoId)]
         );
 
         // Criar mapa de foto_id -> ordem atual
@@ -81,31 +82,32 @@ export async function POST(request) {
                 if (ordemAtual !== index) {
                     await dbPool.query(
                         'UPDATE motos.motofotos SET ordem = ? WHERE moto_id = ? AND foto_id = ?',
-                        [index, motoId, fotoId]
+                        [normalizeNumeric(index), normalizeNumeric(motoId), normalizeNumeric(fotoId)]
                     );
                 }
             } else {
                 // Foto não existe: inserir nova
                 await dbPool.query(
                     'INSERT INTO motos.motofotos (moto_id, foto_id, ordem) VALUES (?, ?, ?)',
-                    [motoId, fotoId, index]
+                    [normalizeNumeric(motoId), normalizeNumeric(fotoId), normalizeNumeric(index)]
                 );
             }
         }
 
         // Remover fotos que não estão mais na lista
         if (fotoIds.length > 0) {
-            const fotoIdsPlaceholders = fotoIds.map(() => '?').join(',');
+            const normalizedFotoIds = fotoIds.map(id => normalizeNumeric(id));
+            const fotoIdsPlaceholders = normalizedFotoIds.map(() => '?').join(',');
             await dbPool.query(
                 `DELETE FROM motos.motofotos 
                  WHERE moto_id = ? AND foto_id NOT IN (${fotoIdsPlaceholders})`,
-                [motoId, ...fotoIds]
+                [normalizeNumeric(motoId), ...normalizedFotoIds]
             );
         } else {
             // Se não há fotos, remover todas
             await dbPool.query(
                 'DELETE FROM motos.motofotos WHERE moto_id = ?',
-                [motoId]
+                [normalizeNumeric(motoId)]
             );
         }
 

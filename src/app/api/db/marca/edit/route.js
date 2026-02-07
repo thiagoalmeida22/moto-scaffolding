@@ -1,4 +1,5 @@
 import dbPool from '@/utils/database.js'
+import { normalizeValue, normalizeNumeric } from '@/utils/valueHelpers.js'
 
 export async function PUT(request) {
     const { id, marca } = await request.json();
@@ -9,7 +10,7 @@ export async function PUT(request) {
             SET nome = ? 
             WHERE id = ?;
             `,
-            [marca, id]);
+            [normalizeValue(marca), normalizeNumeric(id)]);
         return Response.json(results);
     } catch (err) {
         console.log(err);

@@ -1,4 +1,5 @@
 import dbPool from '@/utils/database.js'
+import { normalizeValue } from '@/utils/valueHelpers.js'
 
 export async function POST(request) {
     const { marca } = await request.json();
@@ -7,7 +8,7 @@ export async function POST(request) {
             INSERT INTO motos.marcas (nome) 
             VALUES (?);
             `,
-            [marca]);
+            [normalizeValue(marca)]);
         return Response.json(results);
     } catch (err) {
         console.log(err);

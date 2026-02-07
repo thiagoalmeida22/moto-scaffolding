@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import dbPool from '@/utils/database.js'
+import { normalizeValue, normalizeNumeric } from '@/utils/valueHelpers.js'
 
 export async function PUT(request) {
     const motoForm = await request.json();
@@ -14,12 +15,46 @@ export async function PUT(request) {
             WHERE id = ?`;
 
         const values = [
-            motoForm.modelo, motoForm.marca, motoForm.ano, motoForm.categoria, motoForm.preco_fipe, motoForm.tipo_motor, motoForm.cilindrada,
-            motoForm.potencia_A, motoForm.potencia_G, motoForm.torque_A, motoForm.torque_G, motoForm.partida, motoForm.refrigeracao, motoForm.cambio,
-            motoForm.embreagem, motoForm.suspensao_d, motoForm.suspensao_t, motoForm.tipo_freio, motoForm.freio_d, motoForm.freio_t, motoForm.pneu_d,
-            motoForm.pneu_t, motoForm.chassi, motoForm.alt_assento, motoForm.altura, motoForm.comprimento, motoForm.largura, motoForm.dist_eixos,
-            motoForm.peso, motoForm.cap_carga, motoForm.vel_max, motoForm.acel_100, motoForm.combustivel, motoForm.consumo_A, motoForm.consumo_G,
-            motoForm.autonomia_A, motoForm.autonomia_G, motoForm.tanque, motoForm.aditional, motoForm.id
+            normalizeValue(motoForm.modelo), 
+            normalizeNumeric(motoForm.marca), 
+            normalizeNumeric(motoForm.ano), 
+            normalizeValue(motoForm.categoria), 
+            normalizeNumeric(motoForm.preco_fipe), 
+            normalizeValue(motoForm.tipo_motor), 
+            normalizeNumeric(motoForm.cilindrada),
+            normalizeValue(motoForm.potencia_A), 
+            normalizeValue(motoForm.potencia_G), 
+            normalizeValue(motoForm.torque_A), 
+            normalizeValue(motoForm.torque_G), 
+            normalizeValue(motoForm.partida), 
+            normalizeValue(motoForm.refrigeracao), 
+            normalizeValue(motoForm.cambio),
+            normalizeValue(motoForm.embreagem), 
+            normalizeValue(motoForm.suspensao_d), 
+            normalizeValue(motoForm.suspensao_t), 
+            normalizeValue(motoForm.tipo_freio), 
+            normalizeValue(motoForm.freio_d), 
+            normalizeValue(motoForm.freio_t), 
+            normalizeValue(motoForm.pneu_d),
+            normalizeValue(motoForm.pneu_t), 
+            normalizeValue(motoForm.chassi), 
+            normalizeNumeric(motoForm.alt_assento), 
+            normalizeNumeric(motoForm.altura), 
+            normalizeNumeric(motoForm.comprimento), 
+            normalizeNumeric(motoForm.largura), 
+            normalizeNumeric(motoForm.dist_eixos),
+            normalizeNumeric(motoForm.peso), 
+            normalizeNumeric(motoForm.cap_carga), 
+            normalizeNumeric(motoForm.vel_max), 
+            normalizeNumeric(motoForm.acel_100), 
+            normalizeValue(motoForm.combustivel), 
+            normalizeNumeric(motoForm.consumo_A), 
+            normalizeNumeric(motoForm.consumo_G),
+            normalizeNumeric(motoForm.autonomia_A), 
+            normalizeNumeric(motoForm.autonomia_G), 
+            normalizeNumeric(motoForm.tanque), 
+            normalizeValue(motoForm.aditional), 
+            motoForm.id
         ];
 
         const [results] = await dbPool.query(sql, values);
