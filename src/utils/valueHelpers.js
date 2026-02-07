@@ -19,3 +19,16 @@ export function normalizeNumeric(value) {
     return value;
 }
 
+// Função para ordenar arrays de objetos alfabeticamente por uma propriedade específica
+export function sortAlphabetically(array, property) {
+    if (!Array.isArray(array)) {
+        return array;
+    }
+    // Criar uma cópia do array para não mutar o original
+    return [...array].sort((a, b) => {
+        const valueA = a[property]?.toLowerCase() || '';
+        const valueB = b[property]?.toLowerCase() || '';
+        return valueA.localeCompare(valueB);
+    });
+}
+

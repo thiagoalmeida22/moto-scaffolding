@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import MotoSpecValue from '../comparador/components/MotoSpecValue';
+import { sortAlphabetically } from '@/utils/valueHelpers.js';
 import './style.css';
 
 function MotosPage() {
@@ -53,7 +54,8 @@ function MotosPage() {
         try {
             const response = await fetch('/api/db/marca');
             const data = await response.json();
-            setMarcas(data);
+            const marcasOrdenadas = sortAlphabetically(data, 'nome');
+            setMarcas(marcasOrdenadas);
         } catch (error) {
             console.error('Error fetching marcas:', error);
         }

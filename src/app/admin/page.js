@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motoInitialState } from './helper';
+import { sortAlphabetically } from '@/utils/valueHelpers.js';
 import './style.css';
 
 const AdminDashboard = () => {
@@ -57,7 +58,8 @@ const AdminDashboard = () => {
         const response = await fetch(`/api/db/marca/${marcaId}`);
         const data = await response.json();
         console.log(data);
-        setModelos(data);
+        const modelosOrdenados = sortAlphabetically(data, 'modelo');
+        setModelos(modelosOrdenados);
     };
 
     const handleChangeModelo = async (event) => {
@@ -83,7 +85,7 @@ const AdminDashboard = () => {
 
     const handleChangeAno = async (event) => {
         if (event.target.value === '') {
-            clearSelectedData();
+            clearOnlyAno();
             return;
         }
         const ano = event.target.value;
@@ -280,11 +282,19 @@ const AdminDashboard = () => {
         setSelectedFotos([]);
     }
 
+    const clearOnlyAno = () => {
+        setSelectedMoto(false);
+        setMotoForm(motoInitialState);
+        setAvailableFotos([]);
+        setSelectedFotos([]);
+    }
+
     const fetchMarcas = async () => {
         const response = await fetch('/api/db/marca');
         const data = await response.json();
         console.log(data);
-        setMarcas(data);
+        const marcasOrdenadas = sortAlphabetically(data, 'nome');
+        setMarcas(marcasOrdenadas);
     };
 
     /* ===== useEffect para popular as Marcas ===== */
@@ -331,8 +341,7 @@ const AdminDashboard = () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(motoForm)
         });
-
-        setActiveTab('');
+        clearOnlyAno();
     };
 
     /* ===== Função para deletar moto com bypass das validações do formulário ===== */
@@ -411,7 +420,9 @@ const AdminDashboard = () => {
         if (marcaId && marcaId !== '0') {
             const response = await fetch(`/api/db/marca/${marcaId}`);
             const data = await response.json();
-            setFotoModelos(data);
+
+            const modelosOrdenados = sortAlphabetically(data, 'modelo');
+            setFotoModelos(modelosOrdenados);
         }
     };
 
