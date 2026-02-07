@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
+import { sortAlphabetically } from '@/utils/valueHelpers.js';
 import './style.css';
 import ComparisonBlock from './components/ComparisonBlock';
 
@@ -65,7 +66,8 @@ function ComparadorContent() {
                     throw new Error('Formato de dados inválido recebido do servidor');
                 }
                 
-                setMarcas(data);
+                const marcasOrdenadas = sortAlphabetically(data, 'nome');
+                setMarcas(marcasOrdenadas);
                 
                 // Verificar se há query parameters para carregar moto da página de motos
                 const marcaParam = searchParams.get('marca');
@@ -255,7 +257,6 @@ function ComparadorContent() {
                 ? data.sort((a, b) => a.modelo.localeCompare(b.modelo))
                 : data;
             setModelos2(modelosOrdenados);
-            // Limpar seleções dependentes
             setSelectedModelo2(null);
             setSelectedMoto2(null);
         } catch (error) {
@@ -291,7 +292,6 @@ function ComparadorContent() {
                 ? data.sort((a, b) => a.modelo.localeCompare(b.modelo))
                 : data;
             setModelos3(modelosOrdenados);
-            // Limpar seleções dependentes
             setSelectedModelo3(null);
             setSelectedMoto3(null);
         } catch (error) {
@@ -347,7 +347,6 @@ function ComparadorContent() {
             
             setSelectedModelo2(selectedModelo);
             setAnos2(data);
-            // Limpar moto selecionada
             setSelectedMoto2(null);
         } catch (error) {
             console.error('Erro ao carregar anos:', error);
@@ -374,7 +373,6 @@ function ComparadorContent() {
             
             setSelectedModelo3(selectedModelo);
             setAnos3(data);
-            // Limpar moto selecionada
             setSelectedMoto3(null);
         } catch (error) {
             console.error('Erro ao carregar anos:', error);

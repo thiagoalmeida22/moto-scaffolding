@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motoInitialState } from './helper';
+import { sortAlphabetically } from '@/utils/valueHelpers.js';
 import './style.css';
 
 const AdminDashboard = () => {
@@ -57,7 +58,8 @@ const AdminDashboard = () => {
         const response = await fetch(`/api/db/marca/${marcaId}`);
         const data = await response.json();
         console.log(data);
-        setModelos(data);
+        const modelosOrdenados = sortAlphabetically(data, 'modelo');
+        setModelos(modelosOrdenados);
     };
 
     const handleChangeModelo = async (event) => {
@@ -83,7 +85,7 @@ const AdminDashboard = () => {
 
     const handleChangeAno = async (event) => {
         if (event.target.value === '') {
-            clearSelectedData();
+            clearOnlyAno();
             return;
         }
         const ano = event.target.value;
@@ -280,11 +282,19 @@ const AdminDashboard = () => {
         setSelectedFotos([]);
     }
 
+    const clearOnlyAno = () => {
+        setSelectedMoto(false);
+        setMotoForm(motoInitialState);
+        setAvailableFotos([]);
+        setSelectedFotos([]);
+    }
+
     const fetchMarcas = async () => {
         const response = await fetch('/api/db/marca');
         const data = await response.json();
         console.log(data);
-        setMarcas(data);
+        const marcasOrdenadas = sortAlphabetically(data, 'nome');
+        setMarcas(marcasOrdenadas);
     };
 
     /* ===== useEffect para popular as Marcas ===== */
@@ -331,8 +341,7 @@ const AdminDashboard = () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(motoForm)
         });
-
-        setActiveTab('');
+        clearOnlyAno();
     };
 
     /* ===== Função para deletar moto com bypass das validações do formulário ===== */
@@ -411,7 +420,9 @@ const AdminDashboard = () => {
         if (marcaId && marcaId !== '0') {
             const response = await fetch(`/api/db/marca/${marcaId}`);
             const data = await response.json();
-            setFotoModelos(data);
+
+            const modelosOrdenados = sortAlphabetically(data, 'modelo');
+            setFotoModelos(modelosOrdenados);
         }
     };
 
@@ -767,7 +778,6 @@ const AdminDashboard = () => {
                                     maxLength="50"
                                     value={motoForm.categoria}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -781,7 +791,6 @@ const AdminDashboard = () => {
                                     name="preco_fipe"
                                     value={motoForm.preco_fipe}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -794,7 +803,6 @@ const AdminDashboard = () => {
                                     maxLength="50"
                                     value={motoForm.tipo_motor}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -809,7 +817,6 @@ const AdminDashboard = () => {
                                     value={motoForm.cilindrada}
                                     onChange={handleMotoFormChange}
                                     step="0.1"
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -824,7 +831,6 @@ const AdminDashboard = () => {
                                     maxLength="50"
                                     value={motoForm.potencia_G}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -839,7 +845,6 @@ const AdminDashboard = () => {
                                     maxLength="50"
                                     value={motoForm.potencia_A}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -854,7 +859,6 @@ const AdminDashboard = () => {
                                     maxLength="50"
                                     value={motoForm.torque_G}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -869,7 +873,6 @@ const AdminDashboard = () => {
                                     maxLength="50"
                                     value={motoForm.torque_A}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -882,7 +885,6 @@ const AdminDashboard = () => {
                                     maxLength="50"
                                     value={motoForm.partida}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -894,7 +896,6 @@ const AdminDashboard = () => {
                                     maxLength="50"
                                     value={motoForm.refrigeracao}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -903,12 +904,11 @@ const AdminDashboard = () => {
                                 </label>
                                 <input
                                     className="form__input"
-                                    type="number"
+                                    type="text"
                                     id="cambio"
                                     name="cambio"
                                     value={motoForm.cambio}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -921,7 +921,6 @@ const AdminDashboard = () => {
                                     maxLength="50"
                                     value={motoForm.embreagem}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -934,7 +933,6 @@ const AdminDashboard = () => {
                                     maxLength="50"
                                     value={motoForm.suspensao_d}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -947,7 +945,6 @@ const AdminDashboard = () => {
                                     maxLength="50"
                                     value={motoForm.suspensao_t}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -960,7 +957,6 @@ const AdminDashboard = () => {
                                     maxLength="50"
                                     value={motoForm.tipo_freio}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -973,7 +969,6 @@ const AdminDashboard = () => {
                                     maxLength="50"
                                     value={motoForm.freio_d}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -986,7 +981,6 @@ const AdminDashboard = () => {
                                     maxLength="50"
                                     value={motoForm.freio_t}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -1001,7 +995,6 @@ const AdminDashboard = () => {
                                     maxLength="50"
                                     value={motoForm.pneu_d}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -1015,7 +1008,6 @@ const AdminDashboard = () => {
                                     maxLength="50"
                                     value={motoForm.pneu_t}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -1028,7 +1020,6 @@ const AdminDashboard = () => {
                                     maxLength="50"
                                     value={motoForm.chassi}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -1042,7 +1033,6 @@ const AdminDashboard = () => {
                                     name="alt_assento"
                                     value={motoForm.alt_assento}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -1056,8 +1046,6 @@ const AdminDashboard = () => {
                                     name="altura"
                                     value={motoForm.altura}
                                     onChange={handleMotoFormChange}
-                                    required
-
                                 />
                             </div>
                             <div className="form-input__div">
@@ -1071,7 +1059,6 @@ const AdminDashboard = () => {
                                     name="comprimento"
                                     value={motoForm.comprimento}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -1084,7 +1071,6 @@ const AdminDashboard = () => {
                                     name="largura"
                                     value={motoForm.largura}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -1097,7 +1083,6 @@ const AdminDashboard = () => {
                                     name="dist_eixos"
                                     value={motoForm.dist_eixos}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -1112,7 +1097,6 @@ const AdminDashboard = () => {
                                     value={motoForm.peso}
                                     onChange={handleMotoFormChange}
                                     step="0.1"
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -1127,7 +1111,6 @@ const AdminDashboard = () => {
                                     value={motoForm.cap_carga}
                                     onChange={handleMotoFormChange}
                                     step="0.1"
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -1141,7 +1124,6 @@ const AdminDashboard = () => {
                                     name="vel_max"
                                     value={motoForm.vel_max}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -1156,7 +1138,6 @@ const AdminDashboard = () => {
                                     value={motoForm.acel_100}
                                     onChange={handleMotoFormChange}
                                     step="0.1"
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -1168,7 +1149,6 @@ const AdminDashboard = () => {
                                     maxLength="50"
                                     value={motoForm.combustivel}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -1182,7 +1162,6 @@ const AdminDashboard = () => {
                                     name="consumo_G"
                                     value={motoForm.consumo_G}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -1196,7 +1175,6 @@ const AdminDashboard = () => {
                                     name="consumo_A"
                                     value={motoForm.consumo_A}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -1210,7 +1188,6 @@ const AdminDashboard = () => {
                                     name="autonomia_G"
                                     value={motoForm.autonomia_G}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -1224,7 +1201,6 @@ const AdminDashboard = () => {
                                     name="autonomia_A"
                                     value={motoForm.autonomia_A}
                                     onChange={handleMotoFormChange}
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">
@@ -1239,7 +1215,6 @@ const AdminDashboard = () => {
                                     value={motoForm.tanque}
                                     onChange={handleMotoFormChange}
                                     step="0.1"
-                                    required
                                 />
                             </div>
                             <div className="form-input__div">

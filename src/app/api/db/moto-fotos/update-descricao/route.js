@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import dbPool from '@/utils/database.js';
+import { normalizeValue } from '@/utils/valueHelpers.js';
 
 export async function PUT(request) {
     try {
@@ -34,7 +35,7 @@ export async function PUT(request) {
             `INSERT INTO motos.fotos (foto_path, descricao) 
              VALUES (?, ?)
              ON DUPLICATE KEY UPDATE descricao = VALUES(descricao)`,
-            [normalizedPath, descricao || null]
+            [normalizedPath, normalizeValue(descricao)]
         );
 
         return NextResponse.json({
