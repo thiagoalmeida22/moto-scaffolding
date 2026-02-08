@@ -31,7 +31,7 @@ cat >> "$NGINX_CONFIG" << 'EOF'
 # Servidor HTTP
 server {
     listen 80;
-    server_name _;
+    server_name motoinfo.com.br www.motoinfo.com.br;
 
     # Logs
     access_log /var/log/nginx/access.log;
@@ -103,7 +103,7 @@ if [ "$HAS_SSL" = true ]; then
 # Configuração HTTPS
 server {
     listen 443 ssl http2;
-    server_name _;
+    server_name motoinfo.com.br www.motoinfo.com.br;
 
     # Certificados SSL (Let's Encrypt)
     ssl_certificate /etc/nginx/ssl/cert.pem;

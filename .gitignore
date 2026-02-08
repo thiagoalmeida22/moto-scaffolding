@@ -48,4 +48,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-guia.md
+# nginx - logs e certificados SSL
+nginx/logs/*
+!nginx/logs/.gitkeep
+nginx/ssl/*.pem
+!nginx/ssl/.gitkeep
+
+# mysql - dados e logs
+mysql/data/
+mysql/logs/
