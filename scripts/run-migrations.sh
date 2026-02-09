@@ -74,5 +74,5 @@ echo ""
 echo -e "${GREEN}✅ Migrations concluídas!${NC}"
 echo ""
 echo "Para verificar, execute:"
-echo "  docker-compose exec mysql mysql -u root -p${MYSQL_ROOT_PASS} motos -e 'SHOW TABLES;'"
+echo "  docker-compose exec mysql mysql -u root -psenhaaqui motos -e 'SHOW TABLES;'"
 
