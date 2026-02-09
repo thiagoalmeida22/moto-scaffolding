@@ -5,7 +5,7 @@ import { decrypt } from "./app/login/session";
 const protectedRoutes = ["/admin"];
 const publicRoutes = ["/login"];
 
-export default async function middleware(req) {
+export default async function proxy(req) {
     const path = req.nextUrl.pathname;
     const isProtectedRoute = protectedRoutes.includes(path);
     const isPublicRoute = publicRoutes.includes(path);
