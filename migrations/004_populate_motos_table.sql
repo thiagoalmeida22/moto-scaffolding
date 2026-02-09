@@ -2,7 +2,7 @@ CREATE DATABASE IF NOT EXISTS motos;
 
 USE motos;
 
-INSERT INTO Motos 
+INSERT INTO motos 
 (modelo, marca, ano, categoria, codigo_fipe, preco_fipe, tipo_motor, cilindrada, potencia_G, potencia_A, torque_G, torque_A, partida, refrigeracao, cambio, embreagem, suspensao_d, suspensao_t, tipo_freio, freio_d, freio_t, pneu_d, pneu_t, chassi, alt_assento, altura, comprimento, largura, dist_eixos, peso, cap_carga, vel_max, acel_100, combustivel, cod_combustivel, consumo_G, consumo_A, autonomia_G, autonomia_A, tanque, aditional)
 VALUES
 ('CG 125 TITAN KS', 1, 2000, 'Street', '811021-2', 6611, 'Monocilíndrico', 124, '12.5 a 8250 rpm', '', '1 a 7500 rpm', '', 'Pedal', 'Ar', '5 Velocidades', 'Manual', 'Garfo Telescópico', 'Biamortecida', '', 'Tambor', 'Tambor', '80/100-18', '90/90-18', 'Berço Duplo', 781, 1056, 1982, 736, 1297, 120, 155, 115, 14, 'Gasolina', 1, 40, NULL, 520, NULL, 13, '')),,,
