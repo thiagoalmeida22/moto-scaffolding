@@ -13,6 +13,7 @@ const AdminDashboard = () => {
     const [anos, setAnos] = useState([]);
     const [selectedMarca, setSelectedMarca] = useState('0');
     const [selectedModelo, setSelectedModelo] = useState('');
+    const [selectedAno, setSelectedAno] = useState('');
     const [selectedMoto, setSelectedMoto] = useState(false);
     const [motoForm, setMotoForm] = useState(motoInitialState);
     const [marcaForm, setMarcaForm] = useState({
@@ -52,6 +53,7 @@ const AdminDashboard = () => {
         // Limpar modelos, anos e fotos quando a marca muda
         setModelos([]);
         setAnos([]);
+        setSelectedAno('');
         setAvailableFotos([]);
         setSelectedFotos([]);
         // Chamando a API para buscar os modelos da marca selecionada
@@ -74,6 +76,7 @@ const AdminDashboard = () => {
         setMotoForm(motoInitialState);
         // Limpar anos e fotos quando o modelo muda
         setAnos([]);
+        setSelectedAno('');
         setAvailableFotos([]);
         setSelectedFotos([]);
         // Chamando a API para buscar os anos referentes ao modelo selecionado
@@ -89,6 +92,7 @@ const AdminDashboard = () => {
             return;
         }
         const ano = event.target.value;
+        setSelectedAno(ano);
         // Limpar fotos antes de carregar nova moto
         setAvailableFotos([]);
         setSelectedFotos([]);
@@ -256,8 +260,8 @@ const AdminDashboard = () => {
                 } else {
                     alert(`${selectedFotos.length} foto(s) linkada(s) com sucesso!`);
                 }
-                // Limpar os dados selecionados (mesmo comportamento do botão CLEAR)
-                clearSelectedData();
+                // Zerar apenas ano e formulário, mantendo marca e modelo nos dropdowns
+                clearOnlyAno();
             } else {
                 alert(`Erro: ${result.error}`);
             }
@@ -272,6 +276,7 @@ const AdminDashboard = () => {
         setAnos([]);
         setSelectedMarca('0');
         setSelectedModelo('');
+        setSelectedAno('');
         setSelectedMoto(false);
         setMarcaForm({
             id: '0',
@@ -283,6 +288,7 @@ const AdminDashboard = () => {
     }
 
     const clearOnlyAno = () => {
+        setSelectedAno('');
         setSelectedMoto(false);
         setMotoForm(motoInitialState);
         setAvailableFotos([]);
@@ -664,7 +670,7 @@ const AdminDashboard = () => {
                                 </div>
                                 <div className="selector-input__div">
                                     <label htmlFor="ano">Ano:</label>
-                                    <select className="selector-input__select" id="ano" onChange={handleChangeAno}>
+                                    <select className="selector-input__select" id="ano" value={selectedAno} onChange={handleChangeAno}>
                                         <option value="">--Selecione--</option>
                                         {anos?.map((ano) => (
                                             <option key={ano.ano} value={ano.ano}>
