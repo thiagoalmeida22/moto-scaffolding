@@ -11,6 +11,9 @@ services:
       - NODE_ENV=production
     ports:
       - "3000:3000"
+    volumes:
+      # Persiste fotos entre deploys (upload e exibição)
+      - ./pictures:/app/pictures
     networks:
       - app-network
     depends_on:
