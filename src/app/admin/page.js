@@ -80,7 +80,7 @@ const AdminDashboard = () => {
         setAvailableFotos([]);
         setSelectedFotos([]);
         // Chamando a API para buscar os anos referentes ao modelo selecionado
-        const response = await fetch(`/api/db/modelo/${modeloSel}`);
+        const response = await fetch(`/api/db/modelo/${encodeURIComponent(modeloSel)}`);
         const data = await response.json();
         console.log(data);
         setAnos(data);
@@ -97,7 +97,7 @@ const AdminDashboard = () => {
         setAvailableFotos([]);
         setSelectedFotos([]);
         const response = await fetch(
-            `/api/db/moto/getWithId?modelo=${selectedModelo}&ano=${ano}`
+            `/api/db/moto/getWithId?modelo=${encodeURIComponent(selectedModelo)}&ano=${ano}`
         );
         const data = await response.json();
         data.marca = marcas.find((ele) => ele.nome === data.marca).id

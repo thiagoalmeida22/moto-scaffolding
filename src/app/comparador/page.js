@@ -166,7 +166,7 @@ function ComparadorContent() {
                 setSelectedModelo1(motoParams.modelo);
                 
                 // Carregar anos do modelo
-                const responseAnos = await fetch(`/api/db/modelo/${motoParams.modelo}`);
+                const responseAnos = await fetch(`/api/db/modelo/${encodeURIComponent(motoParams.modelo)}`);
                 const dataAnos = await responseAnos.json();
                 setAnos1(dataAnos);
                 
@@ -174,7 +174,7 @@ function ComparadorContent() {
                 setSelectedAno1(motoParams.ano);
                 
                 // Carregar dados da moto
-                const responseMoto = await fetch(`/api/db/moto?modelo=${motoParams.modelo}&ano=${motoParams.ano}`);
+                const responseMoto = await fetch(`/api/db/moto?modelo=${encodeURIComponent(motoParams.modelo)}&ano=${motoParams.ano}`);
                 const motoData = await responseMoto.json();
                 setSelectedMoto1(motoData);
             }
@@ -306,7 +306,7 @@ function ComparadorContent() {
             const selectedModelo = modelos1.find(modelo => modelo.modelo === event.target.value).modelo;
             setSelectedModelo1(selectedModelo);
             
-            const response = await fetch(`/api/db/modelo/${event.target.value}`);
+            const response = await fetch(`/api/db/modelo/${encodeURIComponent(event.target.value)}`);
             
             if (!response.ok) {
                 throw new Error(`Erro ao carregar anos: ${response.status}`);
@@ -333,7 +333,7 @@ function ComparadorContent() {
         try {
             const selectedModelo = modelos2.find(modelo => modelo.modelo === event.target.value).modelo;
             
-            const response = await fetch(`/api/db/modelo/${event.target.value}`);
+            const response = await fetch(`/api/db/modelo/${encodeURIComponent(event.target.value)}`);
             
             if (!response.ok) {
                 throw new Error(`Erro ao carregar anos: ${response.status}`);
@@ -359,7 +359,7 @@ function ComparadorContent() {
         try {
             const selectedModelo = modelos3.find(modelo => modelo.modelo === event.target.value).modelo;
             
-            const response = await fetch(`/api/db/modelo/${event.target.value}`);
+            const response = await fetch(`/api/db/modelo/${encodeURIComponent(event.target.value)}`);
             
             if (!response.ok) {
                 throw new Error(`Erro ao carregar anos: ${response.status}`);
@@ -385,7 +385,7 @@ function ComparadorContent() {
         try {
             setSelectedAno1(event.target.value);
             
-            const response = await fetch(`/api/db/moto?modelo=${selectedModelo1}&ano=${event.target.value}`);
+            const response = await fetch(`/api/db/moto?modelo=${encodeURIComponent(selectedModelo1)}&ano=${event.target.value}`);
             
             if (!response.ok) {
                 throw new Error(`Erro ao carregar dados da moto: ${response.status}`);
@@ -414,7 +414,7 @@ function ComparadorContent() {
 
     const handleChangeAno2 = async (event) => {
         try {
-            const response = await fetch(`/api/db/moto?modelo=${selectedModelo2}&ano=${event.target.value}`);
+            const response = await fetch(`/api/db/moto?modelo=${encodeURIComponent(selectedModelo2)}&ano=${event.target.value}`);
             
             if (!response.ok) {
                 throw new Error(`Erro ao carregar dados da moto: ${response.status}`);
@@ -443,7 +443,7 @@ function ComparadorContent() {
 
     const handleChangeAno3 = async (event) => {
         try {
-            const response = await fetch(`/api/db/moto?modelo=${selectedModelo3}&ano=${event.target.value}`);
+            const response = await fetch(`/api/db/moto?modelo=${encodeURIComponent(selectedModelo3)}&ano=${event.target.value}`);
             
             if (!response.ok) {
                 throw new Error(`Erro ao carregar dados da moto: ${response.status}`);
