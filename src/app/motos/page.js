@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import MotoSpecValue from '../comparador/components/MotoSpecValue';
 import { sortAlphabetically } from '@/utils/valueHelpers.js';
@@ -15,6 +16,7 @@ function MotosPage() {
     const [selectedModelo, setSelectedModelo] = useState('');
     const [selectedAno, setSelectedAno] = useState('');
     const [motoData, setMotoData] = useState(null);
+    const [motoFotos, setMotoFotos] = useState([]);
 
     // Fetch marcas on component mount
     useEffect(() => {
@@ -94,6 +96,40 @@ function MotosPage() {
             console.error('Error fetching moto data:', error);
         }
     };
+
+    const loadMotoFotos = async (motoId, setter) => {
+        if (!motoId) {
+            setter([]);
+            return;
+        }
+        try {
+            const response = await fetch(`/api/db/moto-fotos/get?motoId=${motoId}`);
+            const data = await response.json();
+            if (data.success && data.fotos && data.fotos.length > 0) {
+                const fotosComCaminho = data.fotos.slice(0, 3).map(f => {
+                    const path = f.foto_path;
+                    if (path.startsWith('/api/pictures')) return path;
+                    if (path.startsWith('/pictures')) return path.replace('/pictures', '/api/pictures');
+                    if (path.startsWith('pictures/')) return `/api/${path}`;
+                    return path;
+                });
+                setter(fotosComCaminho);
+            } else {
+                setter([]);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar fotos:', error);
+            setter([]);
+        }
+    };
+
+    useEffect(() => {
+        if (motoData?.id) {
+            loadMotoFotos(motoData.id, setMotoFotos);
+        } else {
+            setMotoFotos([]);
+        }
+    }, [motoData?.id]);
 
     const handleMarcaChange = (event) => {
         setSelectedMarca(event.target.value);
@@ -228,18 +264,52 @@ function MotosPage() {
 
             {/* Data Display */}
             {motoData && (
-                <div className="data-display">
-                    {renderDataBlock('Especificacoes', motoData.Especificacoes, 6)}
-                    {renderDataBlock('Motor', motoData.Motor, 9)}
-                    {renderDataBlock('Transmissão', motoData.Transmissão, 6)}
-                    {renderDataBlock('Suspensão', motoData.Suspensão, 6)}
-                    {renderDataBlock('Freio', motoData.Freio, 6)}
-                    {renderDataBlock('Pneu', motoData.Pneu, 6)}
-                    {renderDataBlock('Dimensoes', motoData.Dimensoes, 8)}
-                    {renderDataBlock('Desempenho', motoData.Desempenho, 8)}
-                    {renderDataBlock('Combustível', motoData.Combustível, 6)}
-                    {renderDataBlock('Extras', motoData.Extras, 6)}
-                </div>
+                <>
+                    <div className="data-display">
+                        {renderDataBlock('Especificacoes', motoData.Especificacoes, 6)}
+                        {renderDataBlock('Motor', motoData.Motor, 9)}
+                        {renderDataBlock('Transmissão', motoData.Transmissão, 6)}
+                        {renderDataBlock('Suspensão', motoData.Suspensão, 6)}
+                        {renderDataBlock('Freio', motoData.Freio, 6)}
+                        {renderDataBlock('Pneu', motoData.Pneu, 6)}
+                        {renderDataBlock('Dimensoes', motoData.Dimensoes, 8)}
+                        {renderDataBlock('Desempenho', motoData.Desempenho, 8)}
+                        {renderDataBlock('Combustível', motoData.Combustível, 6)}
+                        {renderDataBlock('Extras', motoData.Extras, 6)}
+                    </div>
+
+                    {/* Seção de Fotos */}
+                    {motoFotos.length > 0 && (
+                        <div className="motos-fotos-section">
+                            <h3 className="motos-fotos-header">
+                                {marcas.find(m => String(m.id) === selectedMarca)?.nome ?? motoData.Especificacoes?.Marca} {motoData.Especificacoes?.Modelo}
+                            </h3>
+                            <div className="fotos-grid-comparison">
+                                {motoFotos.map((foto, index) => (
+                                    <div key={index} className="fotos-row fotos-row-single">
+                                        <div className="foto-container">
+                                            <Image
+                                                src={foto}
+                                                alt={`Foto ${index + 1} - ${motoData.Especificacoes?.Modelo}`}
+                                                width={427}
+                                                height={320}
+                                                style={{
+                                                    objectFit: 'cover',
+                                                    borderRadius: '8px',
+                                                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                                }}
+                                                unoptimized
+                                                onError={(e) => {
+                                                    e.target.style.display = 'none';
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );
