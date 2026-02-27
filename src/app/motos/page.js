@@ -77,7 +77,7 @@ function MotosPage() {
 
     const fetchAnos = async (modelo) => {
         try {
-            const response = await fetch(`/api/db/modelo/${modelo}`);
+            const response = await fetch(`/api/db/modelo/${encodeURIComponent(modelo)}`);
             const data = await response.json();
             setAnos(data);
         } catch (error) {
@@ -87,7 +87,7 @@ function MotosPage() {
 
     const fetchMotoData = async (modelo, ano) => {
         try {
-            const response = await fetch(`/api/db/moto?modelo=${modelo}&ano=${ano}`);
+            const response = await fetch(`/api/db/moto?modelo=${encodeURIComponent(modelo)}&ano=${ano}`);
             const data = await response.json();
             setMotoData(data);
         } catch (error) {
