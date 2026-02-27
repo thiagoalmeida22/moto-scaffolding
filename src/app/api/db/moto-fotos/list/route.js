@@ -34,7 +34,7 @@ export async function GET(request) {
 
         // Sanitizar nomes de pastas
         const sanitizeFolderName = (name) => {
-            return name.replace(/[^a-zA-Z0-9_-]/g, '_').trim();
+            return name.replace(/[^a-zA-Z0-9_+-]/g, '_').trim();
         };
 
         const sanitizedMarcaNome = sanitizeFolderName(marcaNome);

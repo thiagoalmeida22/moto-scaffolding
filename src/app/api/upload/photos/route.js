@@ -44,7 +44,7 @@ export async function POST(request) {
         
         // Sanitizar nomes de pastas (remover caracteres especiais)
         const sanitizeFolderName = (name) => {
-            return name.replace(/[^a-zA-Z0-9_-]/g, '_').trim();
+            return name.replace(/[^a-zA-Z0-9_+-]/g, '_').trim();
         };
         
         const sanitizedMarcaNome = sanitizeFolderName(marcaNome);
