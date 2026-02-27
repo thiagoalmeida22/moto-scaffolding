@@ -151,6 +151,48 @@
     margin-left: 10px;
 }
 
+/* Seção de fotos (padrão do comparador) */
+.motos-fotos-section {
+    margin-top: 40px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.motos-fotos-header {
+    margin: 0 0 20px 0;
+    color: #d53829;
+    text-align: center;
+}
+
+.fotos-grid-comparison {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.fotos-row-single {
+    display: flex;
+    justify-content: center;
+}
+
+.foto-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.foto-container img {
+    width: 427px;
+    height: 320px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .selectors {
@@ -177,6 +219,17 @@
     
     .motos-container {
         padding: 15px;
+    }
+    
+    .motos-fotos-section {
+        max-width: 100%;
+    }
+    
+    .foto-container img {
+        width: 100% !important;
+        max-width: 427px;
+        height: auto !important;
+        aspect-ratio: 427/320;
     }
 }
 
