@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import MotoSpecValue from '../comparador/components/MotoSpecValue';
+import SearchableModeloSelect from '../comparador/components/SearchableModeloSelect';
 import { sortAlphabetically } from '@/utils/valueHelpers.js';
 import './style.css';
 
@@ -221,19 +222,15 @@ function MotosPage() {
 
                 <div className="selector-group">
                     <label htmlFor="modelo">Modelo:</label>
-                    <select 
-                        id="modelo" 
-                        value={selectedModelo} 
+                    <SearchableModeloSelect
+                        id="modelo"
+                        labelId="modelo"
+                        modelos={modelos}
+                        value={selectedModelo}
                         onChange={handleModeloChange}
                         disabled={!selectedMarca}
-                    >
-                        <option value="">Selecione um modelo</option>
-                        {modelos.map((modelo) => (
-                            <option key={modelo.modelo} value={modelo.modelo}>
-                                {modelo.modelo}
-                            </option>
-                        ))}
-                    </select>
+                        placeholder="Digite para buscar..."
+                    />
                 </div>
 
                 <div className="selector-group">
