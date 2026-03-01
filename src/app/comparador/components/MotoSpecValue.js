@@ -1,10 +1,15 @@
 import React from 'react';
 import { unit_medida } from '../utils';
 
+// Função auxiliar para verificar se um valor é vazio (null, undefined ou string vazia)
+const isEmpty = (val) => val === null || val === undefined || val === '';
+
 const MotoSpecValue = ({ data, group, chave }) => {
     if (!data || !group || !chave) return '-';
 
     const value = data[chave];
+    if (isEmpty(value)) return '-';
+
     const isPowerOrTorque = ['Potencia', 'Torque'].includes(chave.split(' ')[0]);
     
     const unidade = unit_medida[group]?.[chave] ?? '';

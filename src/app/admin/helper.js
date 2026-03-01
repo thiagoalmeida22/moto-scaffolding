@@ -5,6 +5,7 @@ export const motoInitialState = {
     marca: '',
     ano: '',
     categoria: '',
+    codigo_fipe: '',
     preco_fipe: '',
     tipo_motor: '',
     cilindrada: '',
