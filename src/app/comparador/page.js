@@ -207,10 +207,21 @@ function ComparadorContent() {
     }, [moto3Id]);
 
     const handleChangeMarca1 = async (event) => {
+        const value = event.target.value;
+        setSelectedMarca1(value);
+
+        if (value === '') {
+            setModelos1(null);
+            setSelectedModelo1(null);
+            setSelectedAno1('');
+            setAnos1(null);
+            setSelectedMoto1(null);
+            setHasError(false);
+            return;
+        }
+
         try {
-            setSelectedMarca1(event.target.value);
-            
-            const response = await fetch(`/api/db/marca/${event.target.value}`);
+            const response = await fetch(`/api/db/marca/${value}`);
             
             if (!response.ok) {
                 throw new Error(`Erro ao carregar modelos: ${response.status}`);
@@ -239,8 +250,19 @@ function ComparadorContent() {
     };
 
     const handleChangeMarca2 = async (event) => {
+        const value = event.target.value;
+
+        if (value === '') {
+            setModelos2(null);
+            setSelectedModelo2(null);
+            setAnos2(null);
+            setSelectedMoto2(null);
+            setHasError(false);
+            return;
+        }
+
         try {
-            const response = await fetch(`/api/db/marca/${event.target.value}`);
+            const response = await fetch(`/api/db/marca/${value}`);
             
             if (!response.ok) {
                 throw new Error(`Erro ao carregar modelos: ${response.status}`);
@@ -267,15 +289,19 @@ function ComparadorContent() {
     };
 
     const handleChangeMarca3 = async (event) => {
+        const value = event.target.value;
+
+        if (value === '') {
+            setModelos3(null);
+            setSelectedModelo3(null);
+            setAnos3(null);
+            setSelectedMoto3(null);
+            setHasError(false);
+            return;
+        }
+
         try {
-            if (event.target.value === "") {
-                setSelectedMoto3(null);
-                setAnos3(null);
-                setSelectedModelo3(null);
-                return;
-            }
-            
-            const response = await fetch(`/api/db/marca/${event.target.value}`);
+            const response = await fetch(`/api/db/marca/${value}`);
             
             if (!response.ok) {
                 throw new Error(`Erro ao carregar modelos: ${response.status}`);

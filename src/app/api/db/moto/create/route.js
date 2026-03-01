@@ -6,17 +6,18 @@ export async function POST(request) {
     try {
         const motoForm = await request.json();
         const sql = `
-            INSERT INTO motos.motos (modelo, marca,  ano, categoria,  preco_fipe,  tipo_motor,   cilindrada,   potencia_A,   potencia_G,   torque_A, 
+            INSERT INTO motos.motos (modelo, marca,  ano, categoria, codigo_fipe,  preco_fipe,  tipo_motor,   cilindrada,   potencia_A,   potencia_G,   torque_A, 
             torque_G,   partida,  refrigeracao,    cambio,   embreagem,    suspensao_d,   suspensao_t,  tipo_freio,  freio_d, freio_t,    
             pneu_d,    pneu_t,    chassi,    alt_assento,   altura,   comprimento,  largura, dist_eixos, peso,   cap_carga,    vel_max,
             acel_100, combustivel,    consumo_A, consumo_G,  autonomia_A, autonomia_G,    tanque,    aditional)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
         const values = [
             normalizeValue(motoForm.modelo), 
             normalizeNumeric(motoForm.marca), 
             normalizeNumeric(motoForm.ano), 
             normalizeValue(motoForm.categoria), 
+            normalizeValue(motoForm.codigo_fipe),
             normalizeNumeric(motoForm.preco_fipe), 
             normalizeValue(motoForm.tipo_motor), 
             normalizeNumeric(motoForm.cilindrada),

@@ -113,6 +113,7 @@ const AdminDashboard = () => {
                 marca: safeValue(data.marca),
                 ano: safeValue(data.ano),
                 categoria: safeValue(data.categoria),
+                codigo_fipe: safeValue(data.codigo_fipe),
                 preco_fipe: safeValue(data['preco_fipe']),
                 tipo_motor: safeValue(data.tipo_motor),
                 cilindrada: safeValue(data.cilindrada),
@@ -783,6 +784,18 @@ const AdminDashboard = () => {
                                     name="categoria"
                                     maxLength="50"
                                     value={motoForm.categoria}
+                                    onChange={handleMotoFormChange}
+                                />
+                            </div>
+                            <div className="form-input__div">
+                                <label className="form-input__label" htmlFor="codigo_fipe">Código Fipe:</label>
+                                <input
+                                    className="form__input"
+                                    type="text"
+                                    id="codigo_fipe"
+                                    name="codigo_fipe"
+                                    maxLength="50"
+                                    value={motoForm.codigo_fipe}
                                     onChange={handleMotoFormChange}
                                 />
                             </div>
