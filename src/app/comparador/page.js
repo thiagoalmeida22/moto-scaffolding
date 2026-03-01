@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { sortAlphabetically } from '@/utils/valueHelpers.js';
 import './style.css';
 import ComparisonBlock from './components/ComparisonBlock';
+import SearchableModeloSelect from './components/SearchableModeloSelect';
 
 function ComparadorContent() {
     const searchParams = useSearchParams();
@@ -408,10 +409,19 @@ function ComparadorContent() {
     };
 
     const handleChangeAno1 = async (event) => {
+        const value = event.target.value;
+        setSelectedAno1(value);
+
+        if (value === '') {
+            setSelectedMoto1(null);
+            setMoto1Id(null);
+            setMoto1Fotos([]);
+            setHasError(false);
+            return;
+        }
+
         try {
-            setSelectedAno1(event.target.value);
-            
-            const response = await fetch(`/api/db/moto?modelo=${encodeURIComponent(selectedModelo1)}&ano=${event.target.value}`);
+            const response = await fetch(`/api/db/moto?modelo=${encodeURIComponent(selectedModelo1)}&ano=${value}`);
             
             if (!response.ok) {
                 throw new Error(`Erro ao carregar dados da moto: ${response.status}`);
@@ -439,8 +449,18 @@ function ComparadorContent() {
     };
 
     const handleChangeAno2 = async (event) => {
+        const value = event.target.value;
+
+        if (value === '') {
+            setSelectedMoto2(null);
+            setMoto2Id(null);
+            setMoto2Fotos([]);
+            setHasError(false);
+            return;
+        }
+
         try {
-            const response = await fetch(`/api/db/moto?modelo=${encodeURIComponent(selectedModelo2)}&ano=${event.target.value}`);
+            const response = await fetch(`/api/db/moto?modelo=${encodeURIComponent(selectedModelo2)}&ano=${value}`);
             
             if (!response.ok) {
                 throw new Error(`Erro ao carregar dados da moto: ${response.status}`);
@@ -468,8 +488,18 @@ function ComparadorContent() {
     };
 
     const handleChangeAno3 = async (event) => {
+        const value = event.target.value;
+
+        if (value === '') {
+            setSelectedMoto3(null);
+            setMoto3Id(null);
+            setMoto3Fotos([]);
+            setHasError(false);
+            return;
+        }
+
         try {
-            const response = await fetch(`/api/db/moto?modelo=${encodeURIComponent(selectedModelo3)}&ano=${event.target.value}`);
+            const response = await fetch(`/api/db/moto?modelo=${encodeURIComponent(selectedModelo3)}&ano=${value}`);
             
             if (!response.ok) {
                 throw new Error(`Erro ao carregar dados da moto: ${response.status}`);
@@ -557,17 +587,15 @@ function ComparadorContent() {
                         ))}
                     </select>
                     <label htmlFor="modelo1">Modelo:</label>
-                    <select 
-                        id="modelo1" 
+                    <SearchableModeloSelect
+                        id="modelo1"
+                        labelId="modelo1"
+                        modelos={modelos1 || []}
                         value={selectedModelo1 || ''}
-                        onChange={handleChangeModelo1} 
+                        onChange={handleChangeModelo1}
                         disabled={!modelos1}
-                    >
-                        <option value="">Selecione um modelo</option>
-                        {modelos1?.map(modelo => (
-                            <option key={modelo.modelo} value={modelo.modelo}>{modelo.modelo}</option>
-                        ))}
-                    </select>
+                        placeholder="Digite para buscar..."
+                    />
                     <label htmlFor="ano1">Ano:</label>
                     <select 
                         id="ano1" 
@@ -592,12 +620,15 @@ function ComparadorContent() {
                         ))}
                     </select>
                     <label htmlFor="modelo2">Modelo:</label>
-                    <select id="modelo2" onChange={handleChangeModelo2} disabled={!modelos2}>
-                        <option value="">Selecione um modelo</option>
-                        {modelos2?.map(modelo => (
-                            <option key={modelo.modelo} value={modelo.modelo}>{modelo.modelo}</option>
-                        ))}
-                    </select>
+                    <SearchableModeloSelect
+                        id="modelo2"
+                        labelId="modelo2"
+                        modelos={modelos2 || []}
+                        value={selectedModelo2 || ''}
+                        onChange={handleChangeModelo2}
+                        disabled={!modelos2}
+                        placeholder="Digite para buscar..."
+                    />
                     <label htmlFor="ano2">Ano:</label>
                     <select id="ano2" onChange={handleChangeAno2} disabled={!anos2}>
                         <option value="">Selecione um ano</option>
@@ -617,12 +648,15 @@ function ComparadorContent() {
                         ))}
                     </select>
                     <label htmlFor="modelo3">Modelo:</label>
-                    <select id="modelo3" onChange={handleChangeModelo3} disabled={!modelos3}>
-                        <option value="">Selecione um modelo</option>
-                        {modelos3?.map(modelo => (
-                            <option key={modelo.modelo} value={modelo.modelo}>{modelo.modelo}</option>
-                        ))}
-                    </select>
+                    <SearchableModeloSelect
+                        id="modelo3"
+                        labelId="modelo3"
+                        modelos={modelos3 || []}
+                        value={selectedModelo3 || ''}
+                        onChange={handleChangeModelo3}
+                        disabled={!modelos3}
+                        placeholder="Digite para buscar..."
+                    />
                     <label htmlFor="ano3">Ano:</label>
                     <select id="ano3" onChange={handleChangeAno3} disabled={!anos3}>
                         <option value="">Selecione um ano</option>
