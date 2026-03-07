@@ -249,14 +249,24 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 100%;
+}
+
+/* Centraliza o wrapper do Next.js Image e a imagem */
+.foto-container > * {
+    margin: 0 auto;
 }
 
 .foto-container img {
     width: 427px;
     height: 320px;
+    max-width: 100%;
     object-fit: cover;
+    object-position: center;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: block;
+    margin: 0 auto;
 }
 
 /* Responsive design */
