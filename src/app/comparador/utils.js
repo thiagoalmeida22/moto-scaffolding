@@ -1,3 +1,19 @@
+// Mapeamento de rótulos para exibição no frontend (apenas visual)
+// Para mapeamentos específicos por seção, usar 'Seção.Key'
+export const LABEL_DISPLAY_MAP = {
+    'Consumo (Gasolina)': 'Consumo Médio (Gasolina)',
+    'Consumo (Alcool)': 'Consumo Médio (Alcool)',
+    'Velocidade Máx. (Aprox. Painel)': 'Velocidade Máx. Média (Painel)',
+    'Freio.Tipo': 'Opcionais',
+};
+
+export const getDisplayLabel = (key, group) => {
+    if (group && LABEL_DISPLAY_MAP[`${group}.${key}`]) {
+        return LABEL_DISPLAY_MAP[`${group}.${key}`];
+    }
+    return LABEL_DISPLAY_MAP[key] ?? key;
+};
+
 export const unit_medida = {
     'Especificacoes': {
         'Modelo': '',
