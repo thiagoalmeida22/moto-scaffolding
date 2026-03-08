@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import MotoSpecValue from './MotoSpecValue';
+import { getDisplayLabel } from '../utils';
 
 // Função auxiliar para extrair número de uma string (ex: "16 cv a 8500 rpm" -> 16)
 const extractNumber = (str, pattern) => {
@@ -258,7 +259,7 @@ const ComparisonBlock = ({
                     
                     return (
                         <div key={key} className="comparison-row">
-                            <span className="comparison-label">{key}:</span>
+                            <span className="comparison-label">{getDisplayLabel(key, title)}:</span>
                             <div className="comparison-values">
                                 <div className="comparison-value-wrapper">
                                     {rank1 !== null && getMedalForRank(rank1) ? (

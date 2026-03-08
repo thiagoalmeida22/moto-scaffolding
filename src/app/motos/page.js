@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import MotoSpecValue from '../comparador/components/MotoSpecValue';
+import { getDisplayLabel } from '../comparador/utils';
 import SearchableModeloSelect from '../comparador/components/SearchableModeloSelect';
 import { sortAlphabetically } from '@/utils/valueHelpers.js';
 import './style.css';
@@ -174,7 +175,7 @@ function MotosPage() {
                 <div className="data-content">
                     {rowsToRender.map(([key, value]) => (
                         <div key={key} className="data-row">
-                            <span className="data-label">{key}:</span>
+                            <span className="data-label">{getDisplayLabel(key, title)}:</span>
                             <span className="data-value">
                                 <MotoSpecValue
                                     data={data}
