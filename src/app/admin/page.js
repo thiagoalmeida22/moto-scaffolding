@@ -33,6 +33,10 @@ const AdminDashboard = () => {
     const [ignoreMysqlInsert, setIgnoreMysqlInsert] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [pendingUploadFiles, setPendingUploadFiles] = useState(null);
+    const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+    const [duplicateTargetYear, setDuplicateTargetYear] = useState('');
+    const [duplicateError, setDuplicateError] = useState('');
+    const [isDuplicating, setIsDuplicating] = useState(false);
     
     // Estados para linkagem de fotos à moto
     const [availableFotos, setAvailableFotos] = useState([]);
@@ -385,6 +389,47 @@ const AdminDashboard = () => {
         } catch (error) {
             console.error('Erro ao deletar moto:', error);
             alert('Erro ao deletar moto. Verifique o console para mais detalhes.');
+        }
+    };
+
+    const handleDuplicateMoto = async () => {
+        if (!selectedMoto || !motoForm.id || !duplicateTargetYear) {
+            setDuplicateError('Selecione um ano para duplicar.');
+            return;
+        }
+
+        setIsDuplicating(true);
+        setDuplicateError('');
+
+        try {
+            const response = await fetch('/api/db/moto/duplicate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    motoId: motoForm.id,
+                    targetYear: parseInt(duplicateTargetYear, 10)
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                alert(data.message);
+                setShowDuplicateModal(false);
+                setDuplicateTargetYear('');
+                setDuplicateError('');
+                // Recarregar anos para incluir o novo
+                const responseAnos = await fetch(`/api/db/modelo/${encodeURIComponent(selectedModelo)}`);
+                const anosData = await responseAnos.json();
+                setAnos(anosData);
+            } else {
+                setDuplicateError(data.message || 'Erro ao duplicar moto.');
+            }
+        } catch (error) {
+            console.error('Erro ao duplicar moto:', error);
+            setDuplicateError('Erro ao duplicar moto. Tente novamente.');
+        } finally {
+            setIsDuplicating(false);
         }
     };
 
@@ -1270,6 +1315,27 @@ const AdminDashboard = () => {
                             >
                                 Delete Moto
                             </button>
+                            {selectedMoto && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setShowDuplicateModal(true);
+                                        setDuplicateError('');
+                                        setDuplicateTargetYear('');
+                                    }}
+                                    style={{
+                                        backgroundColor: '#17a2b8',
+                                        color: 'white',
+                                        padding: '10px 20px',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        marginLeft: '10px'
+                                    }}
+                                >
+                                    Duplicar para outro ano
+                                </button>
+                            )}
                             
                             {/* Seção de Linkagem de Fotos */}
                             {selectedMoto && (
@@ -1750,6 +1816,110 @@ const AdminDashboard = () => {
                                 }}
                             >
                                 SIM
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Duplicar para outro ano */}
+            {showDuplicateModal && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1000
+                }}>
+                    <div style={{
+                        backgroundColor: 'white',
+                        padding: '30px',
+                        borderRadius: '8px',
+                        maxWidth: '500px',
+                        width: '90%',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#333' }}>
+                            Duplicar moto para outro ano
+                        </h3>
+                        <p style={{ marginBottom: '15px', fontSize: '14px', color: '#666' }}>
+                            A ficha será copiada exatamente igual (sem fotos linkadas) para o ano selecionado.
+                        </p>
+                        <p style={{ marginBottom: '15px', fontSize: '14px', color: '#333', fontWeight: 500 }}>
+                            {selectedMoto && `${motoForm.modelo} (${motoForm.ano}) →`}
+                        </p>
+                        <div style={{ marginBottom: '15px' }}>
+                            <label htmlFor="duplicate-year" style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#333' }}>
+                                Selecione o ano:
+                            </label>
+                            <select
+                                id="duplicate-year"
+                                value={duplicateTargetYear}
+                                onChange={(e) => {
+                                    setDuplicateTargetYear(e.target.value);
+                                    setDuplicateError('');
+                                }}
+                                style={{
+                                    width: '100%',
+                                    padding: '10px 12px',
+                                    fontSize: '16px',
+                                    border: '1px solid #ddd',
+                                    borderRadius: '4px'
+                                }}
+                            >
+                                <option value="">--Selecione o ano--</option>
+                                {Array.from({ length: 31 }, (_, i) => 2000 + i).map((year) => (
+                                    <option key={year} value={year}>{year}</option>
+                                ))}
+                            </select>
+                        </div>
+                        {duplicateError && (
+                            <p style={{ marginBottom: '15px', color: '#dc3545', fontSize: '14px' }}>
+                                {duplicateError}
+                            </p>
+                        )}
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                            <button
+                                onClick={() => {
+                                    setShowDuplicateModal(false);
+                                    setDuplicateTargetYear('');
+                                    setDuplicateError('');
+                                }}
+                                disabled={isDuplicating}
+                                style={{
+                                    padding: '10px 20px',
+                                    backgroundColor: '#6c757d',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: isDuplicating ? 'not-allowed' : 'pointer',
+                                    fontSize: '14px',
+                                    fontWeight: '500'
+                                }}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleDuplicateMoto}
+                                disabled={!duplicateTargetYear || isDuplicating}
+                                style={{
+                                    padding: '10px 20px',
+                                    backgroundColor: '#17a2b8',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: duplicateTargetYear && !isDuplicating ? 'pointer' : 'not-allowed',
+                                    fontSize: '14px',
+                                    fontWeight: '500',
+                                    opacity: duplicateTargetYear && !isDuplicating ? 1 : 0.6
+                                }}
+                            >
+                                {isDuplicating ? 'Duplicando...' : 'Duplicar'}
                             </button>
                         </div>
                     </div>
