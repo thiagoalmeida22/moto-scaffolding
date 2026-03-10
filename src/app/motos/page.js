@@ -7,6 +7,7 @@ import MotoSpecValue from '../comparador/components/MotoSpecValue';
 import { getDisplayLabel } from '../comparador/utils';
 import SearchableModeloSelect from '../comparador/components/SearchableModeloSelect';
 import { sortAlphabetically } from '@/utils/valueHelpers.js';
+import AdSidebar from '@/components/AdSidebar';
 import './style.css';
 
 function MotosPage() {
@@ -264,10 +265,14 @@ function MotosPage() {
                 )}
             </div>
 
-            {/* Data Display */}
+            {/* Data Display com sidebars de anúncios */}
             {motoData && (
                 <>
-                    <div className="data-display">
+                    <div className="data-display-wrapper">
+                        <div className="ad-sidebar-left">
+                            <AdSidebar />
+                        </div>
+                        <div className="data-display">
                         {renderDataBlock('Especificacoes', motoData.Especificacoes, 6)}
                         {renderDataBlock('Motor', motoData.Motor, 9)}
                         {renderDataBlock('Transmissão', motoData.Transmissão, 6)}
@@ -278,6 +283,10 @@ function MotosPage() {
                         {renderDataBlock('Desempenho', motoData.Desempenho, 8)}
                         {renderDataBlock('Combustível', motoData.Combustível, 6)}
                         {renderDataBlock('Extras', motoData.Extras, 6)}
+                        </div>
+                        <div className="ad-sidebar-right">
+                            <AdSidebar />
+                        </div>
                     </div>
 
                     {/* Seção de Fotos */}

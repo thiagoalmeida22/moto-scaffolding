@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { sortAlphabetically } from '@/utils/valueHelpers.js';
+import AdSidebar from '@/components/AdSidebar';
 import './style.css';
 import ComparisonBlock from './components/ComparisonBlock';
 import SearchableModeloSelect from './components/SearchableModeloSelect';
@@ -667,9 +668,13 @@ function ComparadorContent() {
                 </div>
             </div>
 
-                {/* Comparison Display */}
+                {/* Comparison Display com sidebars de anúncios */}
                 {selectedMoto1 && selectedMoto2 && (
-                <div className="comparison-display">
+                <div className="comparison-display-wrapper">
+                    <div className="ad-sidebar-left">
+                        <AdSidebar />
+                    </div>
+                    <div className="comparison-display">
                     {/* Moto Names */}
                     <div className="moto-names">
                         <div className="moto-label-spacer"></div>
@@ -1071,6 +1076,10 @@ function ComparadorContent() {
                             </div>
                         </div>
                     )}
+                    </div>
+                    <div className="ad-sidebar-right">
+                        <AdSidebar />
+                    </div>
                 </div>
                 )}
                 </>

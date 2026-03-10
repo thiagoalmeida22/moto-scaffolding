@@ -252,6 +252,34 @@
     font-style: italic;
 }
 
+/* Wrapper para comparison-display com sidebars de anúncios */
+.comparison-display-wrapper {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 24px;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.comparison-display-wrapper .ad-sidebar-left,
+.comparison-display-wrapper .ad-sidebar-right {
+    flex: 0 0 160px;
+    min-width: 160px;
+    position: sticky;
+    top: 100px;
+}
+
+.comparison-display-wrapper .ad-sidebar {
+    min-height: 250px;
+}
+
+.comparison-display-wrapper .comparison-display {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
 /* Comparison display styling */
 .comparison-display {
     display: flex;
@@ -476,6 +504,16 @@
 
 /* Responsive design */
 @media (max-width: 768px) {
+    .comparison-display-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .comparison-display-wrapper .ad-sidebar-left,
+    .comparison-display-wrapper .ad-sidebar-right {
+        display: none;
+    }
+    
     .selectors {
         flex-direction: column;
         align-items: center;
