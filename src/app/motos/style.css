@@ -140,15 +140,37 @@
     background-color: #8f2419;
 }
 
+/* Wrapper para data-display com sidebars de anúncios */
+.data-display-wrapper {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 24px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.ad-sidebar-left,
+.ad-sidebar-right {
+    flex: 0 0 160px;
+    min-width: 160px;
+    position: sticky;
+    top: 100px;
+}
+
+.ad-sidebar {
+    min-height: 250px;
+}
+
 /* Data display styling */
 .data-display {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    width: 100%;
-    max-width: 500px;
+    flex: 1 1 auto;
     min-width: 300px;
-    margin: 0 auto;
+    max-width: 500px;
 }
 
 .data-row-container {
@@ -261,6 +283,20 @@
 
 /* Responsive design */
 @media (max-width: 768px) {
+    .data-display-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .ad-sidebar-left,
+    .ad-sidebar-right {
+        display: none;
+    }
+    
+    .data-display {
+        max-width: 100%;
+    }
+    
     .selectors {
         flex-direction: column;
         align-items: center;
