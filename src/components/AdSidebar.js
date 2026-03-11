@@ -1,16 +1,18 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 /**
  * Componente de bloco de anúncio AdSense Sidebar-Vertical.
  * Deve ser usado dentro das páginas que já carregam o script adsbygoogle.js (motos e comparador).
  */
 export default function AdSidebar() {
+  const adRef = useRef(null);
+
   useEffect(() => {
     try {
-      if (typeof window !== 'undefined') {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      if (typeof window !== 'undefined' && adRef.current && !adRef.current.getAttribute('data-adsbygoogle-status')) {
+        (window.adsbygoogle = window.adsbygoogle ||[]).push({});
       }
     } catch (e) {
       console.warn('AdSense push error:', e);
