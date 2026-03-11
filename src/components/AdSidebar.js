@@ -4,24 +4,27 @@ import { useEffect, useRef } from 'react';
 
 /**
  * Componente de bloco de anúncio AdSense Sidebar-Vertical.
- * Deve ser usado dentro das páginas que já carregam o script adsbygoogle.js (motos e comparador).
  */
 export default function AdSidebar() {
   const adRef = useRef(null);
 
   useEffect(() => {
     try {
-      if (typeof window !== 'undefined' && adRef.current && !adRef.current.getAttribute('data-adsbygoogle-status')) {
-        (window.adsbygoogle = window.adsbygoogle ||[]).push({});
+      if (typeof window !== 'undefined') {
+        // Verifica se a tag <ins> AINDA NÃO foi preenchida pelo AdSense
+        if (adRef.current && !adRef.current.getAttribute('data-adsbygoogle-status')) {
+          (window.adsbygoogle = window.adsbygoogle ||[]).push({});
+        }
       }
     } catch (e) {
       console.warn('AdSense push error:', e);
     }
-  }, []);
+  },[]);
 
   return (
     <div className="ad-sidebar">
       <ins
+        ref={adRef}
         className="adsbygoogle"
         style={{ display: 'block' }}
         data-ad-client="ca-pub-1553103771237763"
