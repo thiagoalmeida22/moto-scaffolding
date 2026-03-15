@@ -1,13 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import MotoSpecValue from '../comparador/components/MotoSpecValue';
-import { getDisplayLabel } from '../comparador/utils';
 import SearchableModeloSelect from '../comparador/components/SearchableModeloSelect';
 import { sortAlphabetically } from '@/utils/valueHelpers.js';
-import AdSidebar from '@/components/AdSidebar';
+import { slugify } from '@/utils/slug.js';
 import './style.css';
 
 function MotosPage() {
@@ -18,8 +15,6 @@ function MotosPage() {
     const [selectedMarca, setSelectedMarca] = useState('');
     const [selectedModelo, setSelectedModelo] = useState('');
     const [selectedAno, setSelectedAno] = useState('');
-    const [motoData, setMotoData] = useState(null);
-    const [motoFotos, setMotoFotos] = useState([]);
 
     // Fetch marcas on component mount
     useEffect(() => {
@@ -46,14 +41,16 @@ function MotosPage() {
         }
     }, [selectedModelo]);
 
-    // Fetch moto data when ano changes
+    // Redirecionar para a ficha técnica individual assim que marca, modelo e ano forem selecionados
     useEffect(() => {
-        if (selectedAno) {
-            fetchMotoData(selectedModelo, selectedAno);
-        } else {
-            setMotoData(null);
+        if (!selectedMarca || !selectedModelo || !selectedAno || !marcas.length) return;
+        const marcaNome = marcas.find((m) => String(m.id) === selectedMarca)?.nome;
+        if (marcaNome) {
+            const marcaSlug = slugify(marcaNome);
+            const modeloSlug = slugify(selectedModelo);
+            router.replace(`/motos/${marcaSlug}/${modeloSlug}/${selectedAno}`);
         }
-    }, [selectedAno, selectedModelo]);
+    }, [selectedMarca, selectedModelo, selectedAno, marcas, router]);
 
     const fetchMarcas = async () => {
         try {
@@ -90,50 +87,6 @@ function MotosPage() {
         }
     };
 
-    const fetchMotoData = async (modelo, ano) => {
-        try {
-            const response = await fetch(`/api/db/moto?modelo=${encodeURIComponent(modelo)}&ano=${ano}`);
-            const data = await response.json();
-            setMotoData(data);
-        } catch (error) {
-            console.error('Error fetching moto data:', error);
-        }
-    };
-
-    const loadMotoFotos = async (motoId, setter) => {
-        if (!motoId) {
-            setter([]);
-            return;
-        }
-        try {
-            const response = await fetch(`/api/db/moto-fotos/get?motoId=${motoId}`);
-            const data = await response.json();
-            if (data.success && data.fotos && data.fotos.length > 0) {
-                const fotosComCaminho = data.fotos.slice(0, 3).map(f => {
-                    const path = f.foto_path;
-                    if (path.startsWith('/api/pictures')) return path;
-                    if (path.startsWith('/pictures')) return path.replace('/pictures', '/api/pictures');
-                    if (path.startsWith('pictures/')) return `/api/${path}`;
-                    return path;
-                });
-                setter(fotosComCaminho);
-            } else {
-                setter([]);
-            }
-        } catch (error) {
-            console.error('Erro ao carregar fotos:', error);
-            setter([]);
-        }
-    };
-
-    useEffect(() => {
-        if (motoData?.id) {
-            loadMotoFotos(motoData.id, setMotoFotos);
-        } else {
-            setMotoFotos([]);
-        }
-    }, [motoData?.id]);
-
     const handleMarcaChange = (event) => {
         setSelectedMarca(event.target.value);
     };
@@ -144,60 +97,6 @@ function MotosPage() {
 
     const handleAnoChange = (event) => {
         setSelectedAno(event.target.value);
-    };
-
-    const handleCompararClick = () => {
-        if (motoData) {
-            // Criar query parameters
-            const params = new URLSearchParams({
-                marca: selectedMarca, // ID da marca (numérico)
-                modelo: selectedModelo,
-                ano: selectedAno
-            });
-            
-            // Redirecionar para o comparador com query parameters
-            router.push(`/comparador?${params.toString()}`);
-        }
-    };
-
-    // Função auxiliar para verificar se um valor é vazio (null, undefined ou string vazia)
-    const isEmpty = (val) => val === null || val === undefined || val === '';
-
-    const renderDataBlock = (title, data, maxRows = 0) => {
-        if (!data) return null;
-        
-        const entries = Object.entries(data);
-        const allRows = maxRows > 0 ? entries.slice(0, maxRows) : entries;
-        const rowsToRender = allRows.filter(([, value]) => !isEmpty(value));
-        
-        return (
-            <div className="data-block">
-                <h3>{title}</h3>
-                <div className="data-content">
-                    {rowsToRender.map(([key, value]) => (
-                        <div key={key} className="data-row">
-                            <span className="data-label">{getDisplayLabel(key, title)}:</span>
-                            <span className="data-value">
-                                <MotoSpecValue
-                                    data={data}
-                                    group={title}
-                                    chave={key}
-                                />
-                            </span>
-                        </div>
-                    ))}
-                    {/* Fill empty rows if needed */}
-                    {maxRows > 0 && rowsToRender.length < maxRows && 
-                        Array.from({ length: maxRows - rowsToRender.length }).map((_, index) => (
-                            <div key={`empty-${index}`} className="data-row empty">
-                                <span className="data-label"></span>
-                                <span className="data-value"></span>
-                            </div>
-                        ))
-                    }
-                </div>
-            </div>
-        );
     };
 
     return (
@@ -251,77 +150,7 @@ function MotosPage() {
                         ))}
                     </select>
                 </div>
-
-                {/* Botão Comparar */}
-                {motoData && (
-                    <div className="selector-group">
-                        <button 
-                            className="comparar-button"
-                            onClick={handleCompararClick}
-                        >
-                            Comparar
-                        </button>
-                    </div>
-                )}
             </div>
-
-            {/* Data Display com sidebars de anúncios */}
-            {motoData && (
-                <>
-                    <div className="data-display-wrapper">
-                        <div className="ad-sidebar-left">
-                            <AdSidebar />
-                        </div>
-                        <div className="data-display">
-                        {renderDataBlock('Especificacoes', motoData.Especificacoes, 6)}
-                        {renderDataBlock('Motor', motoData.Motor, 9)}
-                        {renderDataBlock('Transmissão', motoData.Transmissão, 6)}
-                        {renderDataBlock('Suspensão', motoData.Suspensão, 6)}
-                        {renderDataBlock('Freio', motoData.Freio, 6)}
-                        {renderDataBlock('Pneu', motoData.Pneu, 6)}
-                        {renderDataBlock('Dimensoes', motoData.Dimensoes, 8)}
-                        {renderDataBlock('Desempenho', motoData.Desempenho, 8)}
-                        {renderDataBlock('Combustível', motoData.Combustível, 6)}
-                        {renderDataBlock('Extras', motoData.Extras, 6)}
-                        </div>
-                        <div className="ad-sidebar-right">
-                            <AdSidebar />
-                        </div>
-                    </div>
-
-                    {/* Seção de Fotos */}
-                    {motoFotos.length > 0 && (
-                        <div className="motos-fotos-section">
-                            <h3 className="motos-fotos-header">
-                                {marcas.find(m => String(m.id) === selectedMarca)?.nome ?? motoData.Especificacoes?.Marca} {motoData.Especificacoes?.Modelo}
-                            </h3>
-                            <div className="fotos-grid-comparison">
-                                {motoFotos.map((foto, index) => (
-                                    <div key={index} className="fotos-row fotos-row-single">
-                                        <div className="foto-container">
-                                            <Image
-                                                src={foto}
-                                                alt={`Foto ${index + 1} - ${motoData.Especificacoes?.Modelo}`}
-                                                width={427}
-                                                height={320}
-                                                style={{
-                                                    objectFit: 'cover',
-                                                    borderRadius: '8px',
-                                                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                                                }}
-                                                unoptimized
-                                                onError={(e) => {
-                                                    e.target.style.display = 'none';
-                                                }}
-                                            />
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </>
-            )}
         </div>
     );
 }

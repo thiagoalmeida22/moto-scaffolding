@@ -28,7 +28,7 @@ export default function Header() {
                     />
                 </Link>
                 <div className={styles.links}>
-                    <Link href="/motos">Motos</Link>
+                    <Link href="/motos">Ficha Técnica</Link>
                     <Link href="/comparador">Comparador</Link>
                 </div>
             </nav>

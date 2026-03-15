@@ -15,6 +15,33 @@
     color: #333;
 }
 
+.comparador-intro {
+    max-width: 680px;
+    margin: 0 auto 24px;
+    padding: 0 20px;
+}
+
+.comparador-intro p {
+    margin: 0;
+    line-height: 1.7;
+    color: #444;
+    font-size: 1rem;
+}
+
+.comparador-titulo-vs {
+    font-size: 1.25rem;
+    color: #d53829;
+    margin: 0 0 12px 0;
+    font-weight: 600;
+}
+
+.comparador-specs-title {
+    font-size: 1.25rem;
+    color: #333;
+    margin: 0 0 16px 0;
+    font-weight: 600;
+}
+
 /* Loading Component Styles */
 .loading-container {
     display: flex;
@@ -447,13 +474,28 @@
     margin-right: auto;
 }
 
+.motos-fotos-section-title {
+    margin: 0 0 20px 0;
+    color: #333;
+    text-align: center;
+    font-size: 1.25rem;
+}
+
+.motos-fotos-desktop {
+    display: block;
+}
+
+.motos-fotos-mobile {
+    display: none;
+}
+
 .motos-fotos-header {
     display: grid;
     gap: 20px;
     margin-bottom: 20px;
 }
 
-.motos-fotos-header h3 {
+.moto-foto-header-name {
     margin: 0;
     color: #d53829;
     text-align: center;
@@ -498,8 +540,42 @@
     width: 427px;
     height: 320px;
     border-radius: 8px;
-    /* Placeholder invisível - mantém espaço mas não é visível */
     visibility: hidden;
+}
+
+/* Mobile: fileira vertical - nome da moto + 3 fotos em sequência */
+.moto-fotos-block {
+    margin-bottom: 28px;
+}
+
+.moto-fotos-block:last-child {
+    margin-bottom: 0;
+}
+
+.moto-fotos-block-name {
+    margin: 0 0 12px 0;
+    color: #d53829;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.moto-fotos-sequencia {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.moto-fotos-sequencia .foto-container {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.moto-fotos-sequencia .foto-container img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 427/320;
+    max-width: 100%;
 }
 
 /* Responsive design */
@@ -559,6 +635,15 @@
     
     .motos-fotos-header {
         grid-template-columns: 1fr !important;
+    }
+    
+    /* Mobile: layout vertical - nome + fotos em sequência por moto */
+    .motos-fotos-desktop {
+        display: none !important;
+    }
+    
+    .motos-fotos-mobile {
+        display: block !important;
     }
 }
 
