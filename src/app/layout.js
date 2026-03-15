@@ -13,14 +13,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://motoinfo.com.br";
+
 export const metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Moto Scaffolding",
   description: "Moto Scaffolding Application",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen flex flex-col`}>
         <Header />
         <main className="flex-grow">

@@ -1,5 +1,11 @@
 import Script from "next/script";
 
+export const metadata = {
+  title: "Ficha Técnica de Moto - Motoinfo",
+  description:
+    "Consulte ficha técnica de motos. Especificações, preço FIPE e fotos de mais de 4000 ano-modelos. - Motoinfo",
+};
+
 export default function MotosLayout({ children }) {
   return (
     <>

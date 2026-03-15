@@ -7,8 +7,28 @@
 
 .motos-container h1 {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     color: #333;
+}
+
+.motos-intro {
+    max-width: 680px;
+    margin: 0 auto 28px;
+    padding: 0 20px;
+}
+
+.motos-intro p {
+    margin: 0;
+    line-height: 1.7;
+    color: #444;
+    font-size: 1rem;
+}
+
+.motos-specs-title {
+    font-size: 1.25rem;
+    color: #d53829;
+    margin: 0 0 16px 0;
+    font-weight: 600;
 }
 
 /* Selectors styling */
@@ -112,6 +132,26 @@
     color: #999;
     cursor: default;
     font-style: italic;
+}
+
+/* Ações na ficha técnica (rota dinâmica) */
+.motos-ficha-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.motos-back-link {
+    color: #d53829;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.motos-back-link:hover {
+    text-decoration: underline;
 }
 
 /* Botão Comparar */
