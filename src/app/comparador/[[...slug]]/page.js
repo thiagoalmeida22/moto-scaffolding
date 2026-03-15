@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useSearchParams, useParams, useRouter } from 'next/navigation';
 import { sortAlphabetically } from '@/utils/valueHelpers.js';
-import { motoSlug } from '@/utils/slug';
+import { motoSlug, slugify } from '@/utils/slug';
 import AdSidebar from '@/components/AdSidebar';
 import '../style.css';
 import ComparisonBlock from '../components/ComparisonBlock';
@@ -342,19 +343,23 @@ function ComparadorContent() {
                     <div className="ad-sidebar-left"><AdSidebar /></div>
                     <div className="comparison-display">
                     {(() => {
-                        const nomes = [
-                            `${selectedMoto1.Especificacoes.Marca} ${selectedMoto1.Especificacoes.Modelo} ${selectedMoto1.Especificacoes.Ano}`,
-                            `${selectedMoto2.Especificacoes.Marca} ${selectedMoto2.Especificacoes.Modelo} ${selectedMoto2.Especificacoes.Ano}`,
-                            ...(selectedMoto3 ? [`${selectedMoto3.Especificacoes.Marca} ${selectedMoto3.Especificacoes.Modelo} ${selectedMoto3.Especificacoes.Ano}`] : []),
+                        const motos = [
+                            { esp: selectedMoto1.Especificacoes, nome: `${selectedMoto1.Especificacoes.Marca} ${selectedMoto1.Especificacoes.Modelo} ${selectedMoto1.Especificacoes.Ano}` },
+                            { esp: selectedMoto2.Especificacoes, nome: `${selectedMoto2.Especificacoes.Marca} ${selectedMoto2.Especificacoes.Modelo} ${selectedMoto2.Especificacoes.Ano}` },
+                            ...(selectedMoto3 ? [{ esp: selectedMoto3.Especificacoes, nome: `${selectedMoto3.Especificacoes.Marca} ${selectedMoto3.Especificacoes.Modelo} ${selectedMoto3.Especificacoes.Ano}` }] : []),
                         ];
-                        const tituloVs = nomes.join(' vs ');
-                        const introTexto = nomes.length === 2
-                            ? `Compare as especificações da ${nomes[0]} com a ${nomes[1]} e veja lado a lado motor, transmissão, consumo e mais.`
-                            : `Compare as especificações ${nomes.slice(0, -1).map(n => `da ${n}`).join(', ')} e da ${nomes[nomes.length - 1]} e veja lado a lado motor, transmissão, consumo e mais.`;
+                        const tituloVs = motos.map(m => m.nome).join(' vs ');
+                        const fichaHref = (esp) => `/motos/${slugify(esp.Marca)}/${slugify(esp.Modelo)}/${esp.Ano}`;
                         return (
                             <div className="comparador-intro">
                                 <h2 className="comparador-titulo-vs">{tituloVs}</h2>
-                                <p>{introTexto}</p>
+                                <p>
+                                    {motos.length === 2 ? (
+                                        <>Compare as especificações da <Link href={fichaHref(motos[0].esp)} className="comparador-intro-link">Ficha técnica da {motos[0].nome}</Link> com a <Link href={fichaHref(motos[1].esp)} className="comparador-intro-link">Ficha técnica da {motos[1].nome}</Link> e veja lado a lado motor, transmissão, consumo e mais.</>
+                                    ) : (
+                                        <>Compare as especificações da <Link href={fichaHref(motos[0].esp)} className="comparador-intro-link">Ficha técnica da {motos[0].nome}</Link>, da <Link href={fichaHref(motos[1].esp)} className="comparador-intro-link">Ficha técnica da {motos[1].nome}</Link> e da <Link href={fichaHref(motos[2].esp)} className="comparador-intro-link">Ficha técnica da {motos[2].nome}</Link> e veja lado a lado motor, transmissão, consumo e mais.</>
+                                    )}
+                                </p>
                             </div>
                         );
                     })()}

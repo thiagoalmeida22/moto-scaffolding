@@ -2,6 +2,9 @@ import Script from "next/script";
 
 export const metadata = {
   title: "Comparador de Motos - Motoinfo",
+  alternates: {
+    canonical: "/comparador",
+  },
 };
 
 export default function ComparadorLayout({ children }) {

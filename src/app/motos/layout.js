@@ -4,6 +4,9 @@ export const metadata = {
   title: "Ficha Técnica de Moto - Motoinfo",
   description:
     "Consulte ficha técnica de motos. Especificações, preço FIPE e fotos de mais de 4000 ano-modelos. - Motoinfo",
+  alternates: {
+    canonical: "/motos",
+  },
 };
 
 export default function MotosLayout({ children }) {
