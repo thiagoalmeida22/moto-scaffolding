@@ -18,11 +18,7 @@ fi
 
 # Gera configuração do nginx
 cat > "$NGINX_CONFIG" << 'EOF'
-# Upstream para o serviço Next.js
-upstream nextjs {
-    server app:3000;
-    keepalive 64;
-}
+# Proxy para app:3000 — resolver Docker + variável evita falha de DNS no startup do NGINX.
 EOF
 
 # Adiciona configuração HTTP
@@ -32,6 +28,9 @@ cat >> "$NGINX_CONFIG" << 'EOF'
 server {
     listen 80;
     server_name motoinfo.com.br www.motoinfo.com.br;
+
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    set $nextjs_upstream http://app:3000;
 
     # Logs
     access_log /var/log/nginx/access.log;
@@ -60,7 +59,7 @@ else
 
     # Proxy para Next.js
     location / {
-        proxy_pass http://nextjs;
+        proxy_pass $nextjs_upstream;
         proxy_http_version 1.1;
         
         # Headers importantes
@@ -84,7 +83,7 @@ else
 
     # Otimização para arquivos estáticos
     location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$ {
-        proxy_pass http://nextjs;
+        proxy_pass $nextjs_upstream;
         expires 1y;
         add_header Cache-Control "public, immutable";
         access_log off;
@@ -117,6 +116,9 @@ server {
     ssl_session_timeout 10m;
     ssl_session_tickets off;
 
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    set $nextjs_upstream http://app:3000;
+
     # OCSP Stapling
     ssl_stapling on;
     ssl_stapling_verify on;
@@ -141,7 +143,7 @@ server {
 
     # Proxy para Next.js
     location / {
-        proxy_pass http://nextjs;
+        proxy_pass $nextjs_upstream;
         proxy_http_version 1.1;
         
         # Headers importantes
@@ -165,7 +167,7 @@ server {
 
     # Otimização para arquivos estáticos
     location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$ {
-        proxy_pass http://nextjs;
+        proxy_pass $nextjs_upstream;
         expires 1y;
         add_header Cache-Control "public, immutable";
         access_log off;
