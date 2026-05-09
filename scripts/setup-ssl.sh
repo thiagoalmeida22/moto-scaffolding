@@ -2,8 +2,35 @@
 
 # Script para configurar certificados SSL com Let's Encrypt
 # Uso: ./scripts/setup-ssl.sh seu-dominio.com seu-email@exemplo.com
+#
+# certbot --standalone ocupa a porta 80; o script para o container nginx antes.
+# Usa "docker compose" (v2) se existir, senão "docker-compose" (v1).
 
 set -e
+
+# Compose v2 (plugin) ou v1 (binário legado)
+compose() {
+    if docker compose version &>/dev/null; then
+        docker compose "$@"
+    elif command -v docker-compose &>/dev/null; then
+        docker-compose "$@"
+    else
+        echo "Erro: instale o Docker Compose (docker compose ou docker-compose)."
+        exit 1
+    fi
+}
+
+stop_nginx_for_certbot() {
+    echo "🛑 Parando o container nginx para liberar a porta 80 (certbot --standalone)..."
+    if compose stop nginx 2>/dev/null; then
+        return 0
+    fi
+    # Fallback pelo container_name do docker-compose.yml
+    if docker stop moto-scaffolding-nginx 2>/dev/null; then
+        return 0
+    fi
+    echo "Aviso: não foi possível parar o serviço nginx via compose; tentando seguir."
+}
 
 # Cores para output
 RED='\033[0;31m'
@@ -58,9 +85,16 @@ if ! curl -f "http://$DOMAIN" > /dev/null 2>&1 && ! curl -f "http://$DOMAIN/heal
     fi
 fi
 
-# Para o nginx temporariamente para liberar a porta 80
-echo "🛑 Parando nginx temporariamente..."
-docker-compose stop nginx || true
+stop_nginx_for_certbot
+sleep 2
+
+if command -v ss &>/dev/null && ss -tlnp 2>/dev/null | grep -qE ':80\s'; then
+    echo "❌ A porta 80 ainda está em uso. Pare manualmente quem estiver escutando nela, por exemplo:"
+    echo "   docker compose stop nginx"
+    echo "   ou: docker stop moto-scaffolding-nginx"
+    ss -tlnp 2>/dev/null | grep -E ':80\s' || true
+    exit 1
+fi
 
 # Obtém certificados SSL
 echo "🔐 Obtendo certificados SSL do Let's Encrypt..."
@@ -91,7 +125,7 @@ fi
 
 # Reinicia o nginx
 echo "▶️  Reiniciando nginx..."
-docker-compose up -d nginx
+compose up -d nginx
 
 echo ""
 echo -e "${GREEN}✅ Certificados SSL configurados com sucesso!${NC}"
