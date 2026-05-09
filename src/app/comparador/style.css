@@ -28,6 +28,15 @@
     font-size: 1rem;
 }
 
+.comparador-intro-link {
+    color: #d53829;
+    text-decoration: underline;
+}
+
+.comparador-intro-link:hover {
+    text-decoration: none;
+}
+
 .comparador-titulo-vs {
     font-size: 1.25rem;
     color: #d53829;
